@@ -86,7 +86,8 @@ We now have a visual representation of our sensor connected to the body but we s
 
 If you are stuggling to work out how to write this have a look at the summary below.
 
-```xml
+<summary>
+ ```xml
 <!-- lidar -->
   <joint name="laser_joint" type="fixed">
     <parent link="chassis" />
@@ -150,6 +151,9 @@ If you are stuggling to work out how to write this have a look at the summary be
     </sensor>
     </gazebo>
 ```
+</summary>
+
+
 
 Using your knowledge from the last step plus the following [links](https://gazebosim.org/docs/fortress/sensors) see if you can setup the [Camera](http://sdformat.org/spec?elem=sensor) and IMU.
 
