@@ -12,19 +12,95 @@ We will now start looking up what makes up everything ROS2 and how it works star
 ros2 node list
 ```
 
-You should see a list of nodes that are currently running, lets have a closer at one of the individual nodes, run the following command from your terminal.
+You should see a list of nodes that are currently running as per below.
 
 ```sh
-ros2 node info /XX
+/base_fp_linkTF
+/behavior_server
+/bt_navigator
+/bt_navigator_navigate_through_poses_rclcpp_node
+/bt_navigator_navigate_to_pose_rclcpp_node
+/controller_server
+/depthCamLinkTF
+/extended_gazebo_bridge
+/global_costmap/global_costmap
+/lifecycle_manager_navigation
+/local_costmap/local_costmap
+/planner_server
+/robot_state_publisher
+/ros_gz_bridge
+/rqt_gui_py_node_3264
+/rviz
+/slam_toolbox
+/smoother_server
+/transform_listener_impl_5593f9c88e20
+/transform_listener_impl_55a7a0e4d4a0
+/transform_listener_impl_55df8cdcca50
+/transform_listener_impl_560d61d68690
+/transform_listener_impl_56257d5730c0
+/transform_listener_impl_5646ebaa5e50
+/velocity_smoother
+/waypoint_follower
 ```
 
-This command will provide you with some details about the node you are interested in for example XX
+lets have a closer at one of the individual nodes, run the following command from your terminal.
 
-Next we will look at the topics that make up the communications between 
+```sh
+ros2 node info /slam_toolbox
+```
+
+This command will provide you with some details about the node you are interested in. For SLAM toolbox we can see it has a number of topics that it subscribes to like /lidar and a number of topics that it publishes to like /pose. This information can be a great start to diagnosing issues as you might think that your node should be subscribed to something but it isn't.
+
+```sh
+/slam_toolbox
+  Subscribers:
+    /clock: rosgraph_msgs/msg/Clock
+    /lidar: sensor_msgs/msg/LaserScan
+    /map: nav_msgs/msg/OccupancyGrid
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /slam_toolbox/feedback: visualization_msgs/msg/InteractiveMarkerFeedback
+  Publishers:
+    /map: nav_msgs/msg/OccupancyGrid
+    /map_metadata: nav_msgs/msg/MapMetaData
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /pose: geometry_msgs/msg/PoseWithCovarianceStamped
+    /rosout: rcl_interfaces/msg/Log
+    /slam_toolbox/graph_visualization: visualization_msgs/msg/MarkerArray
+    /slam_toolbox/scan_visualization: sensor_msgs/msg/LaserScan
+    /slam_toolbox/update: visualization_msgs/msg/InteractiveMarkerUpdate
+    /tf: tf2_msgs/msg/TFMessage
+  Service Servers:
+    /slam_toolbox/clear_changes: slam_toolbox/srv/Clear
+    /slam_toolbox/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /slam_toolbox/deserialize_map: slam_toolbox/srv/DeserializePoseGraph
+    /slam_toolbox/dynamic_map: nav_msgs/srv/GetMap
+    /slam_toolbox/get_interactive_markers: visualization_msgs/srv/GetInteractiveMarkers
+    /slam_toolbox/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /slam_toolbox/get_parameters: rcl_interfaces/srv/GetParameters
+    /slam_toolbox/list_parameters: rcl_interfaces/srv/ListParameters
+    /slam_toolbox/manual_loop_closure: slam_toolbox/srv/LoopClosure
+    /slam_toolbox/pause_new_measurements: slam_toolbox/srv/Pause
+    /slam_toolbox/save_map: slam_toolbox/srv/SaveMap
+    /slam_toolbox/serialize_map: slam_toolbox/srv/SerializePoseGraph
+    /slam_toolbox/set_parameters: rcl_interfaces/srv/SetParameters
+    /slam_toolbox/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+    /slam_toolbox/toggle_interactive_mode: slam_toolbox/srv/ToggleInteractive
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+```
+
+Additionally, we can see some of the services that the node is providing, we can call these services at any time from the command line or from another node and we will see how to do this a little later. Finally we can see that it is not running any action servers and isn't a client of any services or action servers currently.
+
+Next we will look at the topics that make up the communications between the nodes.
 
 ```sh
 ros2 topic list
 ```
+
+Running this will output a long list of topics.
 
 ```sh
 ros2 topic info /XX
@@ -33,19 +109,87 @@ ros2 topic info /XX
 what is the message type for XX, seach it online and workout what are the parts that make up the topic.
 
 ```sh
-ros2 topic echo /XX
+/behavior_server/transition_event
+/behavior_tree_log
+/bond
+/bt_navigator/transition_event
+/clicked_point
+/clock
+/cmd_vel
+/cmd_vel_nav
+/cmd_vel_teleop
+/controller_server/transition_event
+/cost_cloud
+/diagnostics
+/evaluation
+/global_costmap/costmap
+/global_costmap/costmap_raw
+/global_costmap/costmap_updates
+/global_costmap/footprint
+/global_costmap/global_costmap/transition_event
+/global_costmap/published_footprint
+/goal_pose
+/initialpose
+/joint_states
+/lidar
+/lidar/points
+/local_costmap/clearing_endpoints
+/local_costmap/costmap
+/local_costmap/costmap_raw
+/local_costmap/costmap_updates
+/local_costmap/footprint
+/local_costmap/local_costmap/transition_event
+/local_costmap/published_footprint
+/local_costmap/voxel_grid
+/local_plan
+/map
+/map_metadata
+/map_updates
+/marker
+/odom
+...
 ```
 
-View the messages being sent onto the network.
+This can be used as a quick check to see if the expected topics are available but it is more useful to echo a topic to see what the current output is. For example if we echo the output of the lidar laser scan we should see the distances to obstacles at each angle from the robot.
+
+```sh
+ros2 topic echo /lidar
+```
+
+Another topic that might be worth echoing is the /cmd_vel topic. This topic is the standard name in ROS for sending command velocities to control the speed. Try echoing this topic while driving to see it changing over time.
+
+We can look even further into the topic using 
+
+```sh
+ros2 topic info /cmd_vel
+```
+
+We get the following output
+
+```sh
+Type: geometry_msgs/msg/Twist
+Publisher count: 8
+Subscription count: 1
+```
+
+We can then [google](https://letmegooglethat.com/?q=ros2+message+geometry_msgs%2FTwist) the message type and see what makes it up.
+
+![rqt_graph](./resources/images/ROSWorkshop_search_msg.png)
+
+For a more wide range view of how the topics are connected to each other we can use an rqt graph. This will give us details on what topics are connected to which nodes as well as other details. Try digging down into the velocity command to see what the base elements of the topics are and try to work out what they physically represent.
 
 ```sh
 rqt_graph
 ```
 
-This shows all the nodes and topics currently running and how they are connected. It is a great way to debug a system if you don't know why two nodes aren't talking. We can even send our own commands to the robot through the command line.
+![rqt_graph](./resources/images/ROSWorkshop_rqt_graph.png)
+
+This shows all the nodes and topics currently running and how they are connected. It is a great way to debug a system if you don't know why two nodes aren't talking. 
+
+Now we can view and even read from topics but what if we wanted to send a message to a topic for debugging? Well we can publish messages from the command line as well! Try run the following command and watch what happens to your robot.
 
 ```sh
-ros2 topic pub /cmd_vel 
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 1.8}}"
 ```
 
 As you can see from this example we specify the message type that is being sent, what topic to send it to and what the values of that message should be. If we only wanted to send a message once we can add the --once tag otherwise it will continue to publish the same message a default interval. To see more with what you can do with this command run:
