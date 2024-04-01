@@ -103,12 +103,6 @@ ros2 topic list
 Running this will output a long list of topics.
 
 ```sh
-ros2 topic info /XX
-```
-
-what is the message type for XX, seach it online and workout what are the parts that make up the topic.
-
-```sh
 /behavior_server/transition_event
 /behavior_tree_log
 /bond
@@ -197,6 +191,37 @@ As you can see from this example we specify the message type that is being sent,
 ```sh
 ros2 topic -h
 ```
+
+As mentioned before the system had a number of services available, these are usually requests made to another node to complete some task (i.e. find the euclidean distance between two points). Services are useful so you don't have to have the same code running in every node. If we list the services available in our current system you will see there are many with names you probably won't understand, however if you look at the slam_toolbox section there will be a few that might make sense.
+
+```sh
+ros2 service list
+...
+/slam_toolbox/clear_changes
+/slam_toolbox/describe_parameters
+/slam_toolbox/deserialize_map
+/slam_toolbox/dynamic_map
+/slam_toolbox/get_interactive_markers
+/slam_toolbox/get_parameter_types
+/slam_toolbox/get_parameters
+/slam_toolbox/list_parameters
+/slam_toolbox/manual_loop_closure
+/slam_toolbox/pause_new_measurements
+/slam_toolbox/save_map
+/slam_toolbox/serialize_map
+/slam_toolbox/set_parameters
+/slam_toolbox/set_parameters_atomically
+/slam_toolbox/toggle_interactive_mode
+...
+```
+
+We will will call the map saving tool provided by slam toolbox (this is a wrapper to run a different node but works well none the less)
+
+```sh
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data: /workspace/mymap}}"
+```
+
+Once the service is called you will see the request being sent and a response. If you look in your workspace directory you will also see 2 new files. One is a .pgm file which is a binary version of a grayscale image representing the map and the other file is a .yaml which specifies some parameters for the map (feel free to look into these parameters [here](https://index.ros.org/p/nav2_map_server/)). The map you have just made has been saved and can now be loaded again at a later date.
 
 
 That is it for today, the skills you learn here will help with the rest of the week in diagnosing various issues and so on.
