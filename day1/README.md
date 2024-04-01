@@ -174,7 +174,7 @@ Subscription count: 1
 
 We can then [google](https://letmegooglethat.com/?q=ros2+message+geometry_msgs%2FTwist) the message type and see what makes it up.
 
-![rqt_graph](./resources/images/ROSWorkshop_search_msg.png)
+![rqt_graph](../Resources/images/ROSWorkshop_search_msg.png)
 
 For a more wide range view of how the topics are connected to each other we can use an rqt graph. This will give us details on what topics are connected to which nodes as well as other details. Try digging down into the velocity command to see what the base elements of the topics are and try to work out what they physically represent.
 
@@ -182,7 +182,7 @@ For a more wide range view of how the topics are connected to each other we can 
 rqt_graph
 ```
 
-![rqt_graph](./resources/images/ROSWorkshop_rqt_graph.png)
+![rqt_graph](../Resources/images/ROSWorkshop_rqt_graph.png)
 
 This shows all the nodes and topics currently running and how they are connected. It is a great way to debug a system if you don't know why two nodes aren't talking. 
 
