@@ -161,6 +161,11 @@ Using your knowledge from the last step plus the following [links](https://gazeb
 
 Camera
 
+<details>
+<summary></summary>
+
+<br>
+
 ```xml
 <joint name="cam_joint" type="fixed">
     <parent link="chassis" />
@@ -211,8 +216,27 @@ Camera
     </sensor>
     </gazebo>
 ```
+</details>
 
 IMU
+
+<details>
+<summary></summary>
+
+<br>
+
+```xml
+<gazebo reference="base_link">
+  <sensor name="imu_sensor" type="imu">
+    <always_on>1</always_on>
+    <update_rate>1</update_rate>
+    <visualize>true</visualize>
+    <topic>imu</topic>
+  </sensor>
+</gazebo>
+```
+
+</details>
 
 
 ### Running in RVIZ
@@ -231,8 +255,10 @@ This command listens for transform publishes on the ROS2 network and records the
 
 We have seen SLAM toolbox used yesterday, today we are going to set it up ourselves by connecting the topics to the right places. Start by downloading the [SLAM toolbox](https://github.com/SteveMacenski/slam_toolbox) pacakge.
 
+In addition, we will need navigation2 for path planning and driving later.
+
 ```sh
-sudo apt install ros-humble-slam-toolbox
+sudo apt install ros-humble-slam-toolbox ros-humble-navigation2 ros-humble-nav2-bringup
 ```
 
 Try running SLAM toolbox with your current simulation now and view the topics in rqt_graph. What do you notice about the topic connections?

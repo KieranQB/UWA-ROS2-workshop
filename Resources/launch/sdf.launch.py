@@ -114,9 +114,15 @@ def generate_launch_description():
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan'],
+        arguments=['/lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan',
+                   '/imu@sensor_msgs/msg/Imu@ignition.msgs.IMU'],
         output='screen',
         remappings=[('/cmd_vel','/cmd_vel')]
+    )
+
+    joint_state_pub = Node(
+        package='joint_state_publisher'
+        executable='joint_state_publisher'
     )
 
     # A gui tool for easy tele-operation.
@@ -131,6 +137,7 @@ def generate_launch_description():
         bridge,
         robot,
         robot_state_publisher,
+        joint_state_pub,
         rviz,
         robot_steering
     ])
