@@ -2,7 +2,7 @@
 
 ## Part 1: Playing with the tools
 
-John Vial has created a robotics challenge that sets out the tools and basic information to get a system runnning. Follow the instuction on the [github repository]()
+John Vial has created a robotics challenge that sets out the tools and basic information to get a system runnning. Follow the instuction on the [github repository](https://github.com/johnny555/start-creating-robots-email)
 
 ## Part 2: Getting a glimpse of what is happening
 
