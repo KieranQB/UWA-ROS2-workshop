@@ -84,75 +84,77 @@ We now have a visual representation of our sensor connected to the body but we s
 </gazebo>
 ```
 
-If you are stuggling to work out how to write this have a look at the summary below.
+<details>
+<summary>If you are stuggling to work out how to write this have a look at the summary below.</summary>
 
-<summary>
- ```xml
-<!-- lidar -->
-  <joint name="laser_joint" type="fixed">
-    <parent link="chassis" />
-    <child link="laser_frame" />
-    <origin xyz="0.2 0 0.104" rpy="0 0 0"/>
-  </joint>
+<br>
+ 
+  ```XML
+ <!-- lidar -->
+   <joint name="laser_joint" type="fixed">
+     <parent link="chassis" />
+     <child link="laser_frame" />
+     <origin xyz="0.2 0 0.104" rpy="0 0 0"/>
+   </joint>
+ 
+   <link name="laser_frame">
+     <collision>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <geometry>
+         <box size="0.01 0.01 0.01"/>
+       </geometry>
+     </collision>
+     <visual>
+       <origin xyz="0 0 0" rpy="0 0 0"/> 
+       <geometry>
+         <mesh filename="/home/quirky/Documents/dev_ws/src/p3at/meshes/hokuyo1.dae"/>
+       </geometry>
+     </visual>
+     <inertial>
+       <mass value="1e-5" />
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+     </inertial>
+   </link>
+ 
+   <gazebo reference="laser_frame">
+     <sensor name='gpu_lidar' type='gpu_lidar'>"
+       <pose relative_to='laser_frame'>0 0 0 0 0 0</pose>
+       <topic>lidar</topic>
+       <update_rate>10</update_rate>
+       <ray>
+           <scan>
+               <horizontal>
+                   <samples>640</samples>
+                   <resolution>1</resolution>
+                   <min_angle>-1.396263</min_angle>
+                   <max_angle>1.396263</max_angle>
+               </horizontal>
+               <vertical>
+                   <samples>1</samples>
+                   <resolution>0.01</resolution>
+                   <min_angle>0</min_angle>
+                   <max_angle>0</max_angle>
+               </vertical>
+           </scan>
+           <range>
+               <min>0.08</min>
+               <max>10.0</max>
+               <resolution>0.01</resolution>
+           </range>
+           <noise>
+             <type>gaussian</type>
+             <mean>0.0</mean>
+             <stddev>0.01</stddev>
+           </noise>
+       </ray>
+       <always_on>1</always_on>
+       <visualize>true</visualize>
+     </sensor>
+     </gazebo>
+ ```
 
-  <link name="laser_frame">
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.01 0.01 0.01"/>
-      </geometry>
-    </collision>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/> 
-      <geometry>
-        <mesh filename="/home/quirky/Documents/dev_ws/src/p3at/meshes/hokuyo1.dae"/>
-      </geometry>
-    </visual>
-    <inertial>
-      <mass value="1e-5" />
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
-    </inertial>
-  </link>
-
-  <gazebo reference="laser_frame">
-    <sensor name='gpu_lidar' type='gpu_lidar'>"
-      <pose relative_to='laser_frame'>0 0 0 0 0 0</pose>
-      <topic>lidar</topic>
-      <update_rate>10</update_rate>
-      <ray>
-          <scan>
-              <horizontal>
-                  <samples>640</samples>
-                  <resolution>1</resolution>
-                  <min_angle>-1.396263</min_angle>
-                  <max_angle>1.396263</max_angle>
-              </horizontal>
-              <vertical>
-                  <samples>1</samples>
-                  <resolution>0.01</resolution>
-                  <min_angle>0</min_angle>
-                  <max_angle>0</max_angle>
-              </vertical>
-          </scan>
-          <range>
-              <min>0.08</min>
-              <max>10.0</max>
-              <resolution>0.01</resolution>
-          </range>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.01</stddev>
-          </noise>
-      </ray>
-      <always_on>1</always_on>
-      <visualize>true</visualize>
-    </sensor>
-    </gazebo>
-```
-</summary>
-
+</details>
 
 
 Using your knowledge from the last step plus the following [links](https://gazebosim.org/docs/fortress/sensors) see if you can setup the [Camera](http://sdformat.org/spec?elem=sensor) and IMU.
