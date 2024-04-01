@@ -1,0 +1,123 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+    <world name="pioneer_world">
+        <physics name="1ms" type="ignored">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
+        <plugin
+            filename="ignition-gazebo-physics-system"
+            name="ignition::gazebo::systems::Physics">
+        </plugin>
+        <plugin
+            filename="ignition-gazebo-user-commands-system"
+            name="ignition::gazebo::systems::UserCommands">
+        </plugin>
+        <plugin
+            filename="ignition-gazebo-scene-broadcaster-system"
+            name="ignition::gazebo::systems::SceneBroadcaster">
+        </plugin>
+        <plugin filename="ignition-gazebo-imu-system"
+                name="ignition::gazebo::systems::Imu">
+        </plugin>
+        <plugin filename="ignition-gazebo-sensors-system"
+                name="ignition::gazebo::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+        <plugin filename="ignition-gazebo-contact-system"
+                name="ignition::gazebo::systems::Contact">
+        </plugin>
+
+
+        <light type="directional" name="sun">
+                <cast_shadows>true</cast_shadows>
+                <pose>0 0 10 0 0 0</pose>
+                <diffuse>0.8 0.8 0.8 1</diffuse>
+                <specular>0.2 0.2 0.2 1</specular>
+                <attenuation>
+                    <range>1000</range>
+                    <constant>0.9</constant>
+                    <linear>0.01</linear>
+                    <quadratic>0.001</quadratic>
+                </attenuation>
+                <direction>-0.5 0.1 -0.9</direction>
+            </light>
+
+            <model name="ground_plane">
+                <static>true</static>
+                <link name="link">
+                    <collision name="collision">
+                    <geometry>
+                        <plane>
+                        <normal>0 0 1</normal>
+                        </plane>
+                    </geometry>
+                    </collision>
+                    <visual name="visual">
+                    <geometry>
+                        <plane>
+                        <normal>0 0 1</normal>
+                        <size>100 100</size>
+                        </plane>
+                    </geometry>
+                    <material>
+                        <ambient>0.8 0.8 0.8 1</ambient>
+                        <diffuse>0.8 0.8 0.8 1</diffuse>
+                        <specular>0.8 0.8 0.8 1</specular>
+                    </material>
+                    </visual>
+                </link>
+            </model>
+
+            <model name='wall'>
+                <static>true</static>
+                <pose>5 0 0 0 0 0</pose><!--pose relative to the world-->
+                <link name='box'>
+                    <pose/>
+                    <inertial> <!--inertial properties of the link mass, inertia matix-->
+                        <mass>1.14395</mass>
+                        <inertia>
+                            <ixx>9.532917</ixx>
+                            <ixy>0</ixy>
+                            <ixz>0</ixz>
+                            <iyy>0.023832</iyy>
+                            <iyz>0</iyz>
+                            <izz>9.556749</izz>
+                        </inertia>
+                    </inertial>
+                    <visual name='visual'>
+                        <geometry>
+                            <box>
+                                <size>0.5 10.0 2.0</size>
+                            </box>
+                        </geometry>
+                        <!--let's add color to our link-->
+                        <material>
+                            <ambient>0.0 0.0 1.0 1</ambient>
+                            <diffuse>0.0 0.0 1.0 1</diffuse>
+                            <specular>0.0 0.0 1.0 1</specular>
+                        </material>
+                    </visual>
+                    <collision name='collision'> <!--todo: describe why we need the collision-->
+                        <geometry>
+                            <box>
+                                <size>0.5 10.0 2.0</size>
+                            </box>
+                        </geometry>
+                    </collision>
+                    <sensor name='sensor_contact' type='contact'>
+                        <contact>
+                            <collision>collision</collision>
+                        </contact>
+                    </sensor>
+                </link>
+                <plugin filename="ignition-gazebo-touchplugin-system"
+                        name="ignition::gazebo::systems::TouchPlugin">
+                    <target>vehicle_blue</target>
+                    <namespace>wall</namespace>
+                    <time>0.001</time>
+                    <enabled>true</enabled>
+                </plugin>
+            </model>
+    </world>
+</sdf>
