@@ -2,6 +2,11 @@
 
 The focus of today is getting familiar with the simulation and visualisation tools in ROS2 as well as learning how best to run your project as it gets bigger. In the second half of the day we will deploy our simulated solutions to the actual robots (There are only a handful of robots so people will need to take turns and maybe work in pairs).
 
+## Prerequisite
+
+Install [ign]()
+Install [ros2 humble]()
+
 ## Part 1: The simulation
 
 All good projects should start from a simulation, this will help your quickly develop and test your current solution in a safe environment. The simulated environment also presents the opportunity to test in hard to access regions as you define the world yourself. We will be using Gazebo Ignition as our simulation enviornment as it works well with ROS2. In the files you have downloaded you would have seen a .sdf file and a .urdf file. The sdf file describes the world (and can also decribe the robot model in the world), a urdf on the otherhand will describe just a robot and it's connections. For this module we will only be editing the robot model and leaving the sdf file as is, however feel free to open up the sdf file and have a look through (ask the demonstrators if you want to know more).
@@ -22,18 +27,16 @@ try running the system in gazebo
 #terminal 1
 ign gazebo basic_urdf.sdf 
 #terminal 2
-ign service -s /world/pioneer_world/create --reqtype ignition.msgs.EntityFactory --reptype ignition.msgs.Boolean --timeout 1000 --req 'sdf_filename: "/home/quirky/Documents/dev_ws/src/p3at/robots/pioneer.urdf", name: "urdf_model"'
+ign service -s /world/pioneer_world/create --reqtype ignition.msgs.EntityFactory --reptype ignition.msgs.Boolean --timeout 1000 --req 'sdf_filename: "<filePath>/robots/pioneer.urdf", name: "urdf_model"'
 ```
 
-You will notice the missing wheels as well as the frame colour is incorrect
+You will notice the missing wheels as well as the frame colour is incorrect. In addition, you don't have any sensors currently attached. Try to see if you can attach the remaining wheels and update the chassis colour to be read.
 
-XXset material to correct colour
 
-Adding a sensor
 
 ##### Brief description of URDF file
 
-We break down the parts of `robot.urdf` briefly in this section.
+We break down the parts of `*.urdf` briefly in this section.
 
 * [`<link>`][urdf-link] element: Describes a rigid body with an inertia, visual features, and collision properties.
   * In the below snippet, we describe the base of the robot `base_link` which has a box-geometry with visual attributes like its color.
@@ -79,17 +82,61 @@ We now have a visual representation of our sensor connected to the body but we s
 ```xml
 <gazebo reference="laser_frame">
     <material>Gazebo/Blue</material>
-    <sensor name='gpu_lidar' type='gpu_lidar'>"
+    <sensor name='gpu_lidar' type='gpu_lidar'>
+
     </sensor>
 </gazebo>
 ```
+
+Next we add details about the reference frame, the topic and pose. add the following lines between the the sensor tag.
+
+```xml
+  <ignition_frame_id>laser_frame</ignition_frame_id>
+  <pose relative_to='laser_frame'>0 0 0 0 0 0</pose>
+  <topic>lidar</topic>
+  <update_rate>10</update_rate>
+```
+
+This tells gazebo that the frame_if needs to be laser_frame, the relative position and the topic to publish on. Now we can se up the ray tag which defines the type of lidar we want
+
+```xml
+<ray>
+          <scan>
+              <horizontal>
+                  <samples>640</samples>
+                  <resolution>1</resolution>
+                  <min_angle>-1.396263</min_angle>
+                  <max_angle>1.396263</max_angle>
+              </horizontal>
+              <vertical>
+                  <samples>1</samples>
+                  <resolution>0.01</resolution>
+                  <min_angle>0</min_angle>
+                  <max_angle>0</max_angle>
+              </vertical>
+          </scan>
+          <range>
+              <min>0.08</min>
+              <max>10.0</max>
+              <resolution>0.01</resolution>
+          </range>
+          <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <always_on>1</always_on>
+```
+
+The horizontal tag tell you how many data points to get over what range. The vertical describes how many layers the lidar should run over.
 
 <details>
 <summary>If you are stuggling to work out how to write this have a look at the summary below.</summary>
 
 <br>
  
-  ```XML
+  ```xml
  <!-- lidar -->
    <joint name="laser_joint" type="fixed">
      <parent link="chassis" />
@@ -107,7 +154,7 @@ We now have a visual representation of our sensor connected to the body but we s
      <visual>
        <origin xyz="0 0 0" rpy="0 0 0"/> 
        <geometry>
-         <mesh filename="/home/quirky/Documents/dev_ws/src/p3at/meshes/hokuyo1.dae"/>
+         <mesh filename="<path_to_file>/meshes/hokuyo1.dae"/>
        </geometry>
      </visual>
      <inertial>
@@ -241,7 +288,21 @@ IMU
 
 ### Running in RVIZ
 
-A launch file a has been given to you, create a new ROS2 workspace on your PC and then create a new master package. We will use this package to run all our nodes from.
+We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and src directory) and then create a new master package. We will use this package to run all our nodes from.
+
+```sh
+ros2 pkg create -build-type ament_cmake <package_name>
+```
+
+After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "models" and "meshes" and then copy the relevant files to your new package.
+
+Once you are happy that you have set it up you can use colcon build to build the package.
+
+```sh
+colcon build
+```
+
+Instead of building the entire the system after every change we can select just the pacakages that we want to build using "--packages-select <packages>" after the build command.
 
 When setting up our system we may run into issues where the components of the robot are not in the place we expect. We can have a look at these transforms using the following command.
 
@@ -251,30 +312,39 @@ ros2 run tf2_tools view_frames
 
 This command listens for transform publishes on the ROS2 network and records them. It will then save these transforms to a pdf which can be viewed. Open up the view_frames file and take a look at the current transforms.
 
+We now need to add some new topics to the launch file to make it work the way we want it.
+
+sourcing the right place
+
+
+
 ### Setting up SLAM for mapping
 
 We have seen SLAM toolbox used yesterday, today we are going to set it up ourselves by connecting the topics to the right places. Start by downloading the [SLAM toolbox](https://github.com/SteveMacenski/slam_toolbox) pacakge.
 
-In addition, we will need navigation2 for path planning and driving later.
-
 ```sh
-sudo apt install ros-humble-slam-toolbox ros-humble-navigation2 ros-humble-nav2-bringup
+sudo apt install ros-humble-slam-toolbox
 ```
 
 Try running SLAM toolbox with your current simulation now and view the topics in rqt_graph. What do you notice about the topic connections?
 
 ```sh
-ros2 run sl
+ros2 run slam_toolbox
 ```
 
 Currently SLAM toolbox is looking for lidar scans on one topic name but the lidar is publishing to a different name. To make this work we need to connect up the LiDAR topics, the naive approach would be to rewrite the nodes so that the topic name from one pacakge lines up with another. The problem with this is that you won't be able to use other peoples packages easily since you don't download the code just the compiled shared library of them. The better approach is to connect the two topics using remapping in the launch file. Let's create 
+
+In addition, we will need [navigation2]() for path planning and driving. These can be installed using the follow package.
+
+```sh
+sudo apt install ros-humble-slam-toolbox ros-humble-navigation2 ros-humble-nav2-bringup
+```
 
 ### Moving onto the real robot
 
 Now we are going to move our code to the real pioneers. Make a copy of your current project and move it to the pioneer, once done try and launch your robot again. What do you notice?
 
-
-The real robot wont run at all, this is because in the simulator we used simulated hardware now we need to use drivers to talk to the real things. We will download the following packages to setup our robot correctly.
+The robot is still using the simulated hardware, this is because iwe haven't told the system to use drivers to talk to the real devices. We will download the following packages to setup our robot correctly.
 
 * sick_scan_xd for the lidar
 * phidget_spatial for the IMU

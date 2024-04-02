@@ -117,7 +117,7 @@ sudo apt install ros-$ROS_DISTRO-rqt-joint-trajectory-controller
 Launch using the following command
 
 ```bash
-rqt -s rqt_joint_trajectory_controller
+rqt -s rqt_jzoint_trajectory_controller
 ```
 
 ![traj_controller](./resources/images/traj_controller.png)
@@ -240,7 +240,21 @@ Now we can display images as a video feed it is time to add in some object class
 
 Again rebuild the system using colcon built and run the two nodes again. This time you should see some bounding boxes around different obstacles. Try putting random objects infront of your camera to see if the model can detect it.
 
-While it is great to be able to used a pretrained model to classify objects within our image we may want to make our own model. We will now build our own model and train it and test it to see how accurate we can predict.
+While it is great to be able to used a pretrained model to classify objects within our image we may want to make our own model. We will now build our own model and train it and test it to see how accurate we can predict. We will now create a nn model for identifying objects in an image using the CIFAR-10 dataset.
 
+To start with go to the resources file and look under XX. In there you will find a script for extracting the DIFAR-10 data as well as the data files themselve.
+
+lets create a new python file called nn.py and start by displaying some of the images. Write the following lines into your nn.py file.
+
+```python
+
+```
+
+
+Now that we have our model we can try using it within ROS. Start by creating a new package.
+
+```sh
+ros2 pkg create
+```
 
 references: The following site was used as inspiration for this module as well as XX.
