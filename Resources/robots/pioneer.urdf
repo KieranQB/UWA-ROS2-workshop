@@ -172,10 +172,6 @@
     <joint_properties damping="0.7"/>
   </joint>
 
-  
-
-  
-
 
   <gazebo reference="p3at_front_left_wheel">
       <kp>10000000.0</kp> <!--contact stiffness-->

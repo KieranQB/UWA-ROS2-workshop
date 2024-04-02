@@ -19,24 +19,9 @@ check_urdf
 
 XXshow expected output
 
-What you may notice is the back left and front right wheels are missing, first we are going to have to insert them into the urdf. Take a look at the urdf file and see if you can work out how to add the wheels in.
-
-try running the system in gazebo
-
-```sh
-#terminal 1
-ign gazebo basic_urdf.sdf 
-#terminal 2
-ign service -s /world/pioneer_world/create --reqtype ignition.msgs.EntityFactory --reptype ignition.msgs.Boolean --timeout 1000 --req 'sdf_filename: "<filePath>/robots/pioneer.urdf", name: "urdf_model"'
-```
-
-You will notice the missing wheels as well as the frame colour is incorrect. In addition, you don't have any sensors currently attached. Try to see if you can attach the remaining wheels and update the chassis colour to be read.
-
-
-
 ##### Brief description of URDF file
 
-We break down the parts of `*.urdf` briefly in this section.
+We break down the parts of `.urdf` briefly in this section.
 
 * [`<link>`][urdf-link] element: Describes a rigid body with an inertia, visual features, and collision properties.
   * In the below snippet, we describe the base of the robot `base_link` which has a box-geometry with visual attributes like its color.
@@ -71,6 +56,22 @@ has a fixed connection with *base_link*, with all degrees-of-freedom locked.
 For more information on the XML tags of URDF file, please refer to its
 documentation [here](http://wiki.ros.org/urdf/XML).
 
+What you may notice is the back left and front right wheels are missing, first we are going to have to insert them into the urdf. Take a look at the urdf file and see if you can work out how to add the wheels in. Try running the system in gazebo first just to help visualise the issue. You will also need to update the path to the meshes which are visualisation files for the robot.
+
+```sh
+#terminal 1
+ign gazebo basic_urdf.sdf 
+#terminal 2
+ign service -s /world/pioneer_world/create --reqtype ignition.msgs.EntityFactory --reptype ignition.msgs.Boolean --timeout 1000 --req 'sdf_filename: "<filePath>/robots/pioneer.urdf", name: "urdf_model"'
+```
+
+You will notice the missing wheels as well as the frame colour is incorrect. In addition, you don't have any sensors currently attached. Try to see if you can attach the remaining wheels and update the chassis colour to be read. Try changing only one or two things at a time as it might need to be reverted. Once you have the wheels attached you can try driving the robot. In iginition gazebo click the top left button and search for `Teleop`, click on it and then scroll down to where it has been added into the menu. Change the settings to keyboard and try driving your robot (you will need to press play on the environment), do you notice anything strange?
+
+The robot seems to fall to the ground and drive in a perculiar way. Try making the robot transparent by right clicking the urdf in the right hand menu and changing the properties to transparent, then add in the collision view in the same menu. What do you notice about the wheels?
+
+They are all at right angles in the collision frame! we need to fix this in order to drive properly. Have a look under the collision tag in the link for the wheels and see if you can work it out.
+
+
 ### Adding a sensor
 
 Lidar
@@ -97,7 +98,7 @@ Next we add details about the reference frame, the topic and pose. add the follo
   <update_rate>10</update_rate>
 ```
 
-This tells gazebo that the frame_if needs to be laser_frame, the relative position and the topic to publish on. Now we can se up the ray tag which defines the type of lidar we want
+This tells gazebo that the frame_if needs to be laser_frame, the relative position and the topic to publish on. Now we can set up the ray tag which defines the type of lidar we want including the number of samples in a single layer and how many layers we can have.
 
 ```xml
 <ray>
@@ -129,7 +130,15 @@ This tells gazebo that the frame_if needs to be laser_frame, the relative positi
       <always_on>1</always_on>
 ```
 
-The horizontal tag tell you how many data points to get over what range. The vertical describes how many layers the lidar should run over.
+The horizontal tag tell you how many data points to get over what range. The vertical describes how many layers the lidar should run over. 
+
+Once you have added this in and saved it try running the system again (you might need to close your previous gazebo session). Gazebo like ros has the ability to view topics by using:
+
+```sh
+ign topic -e --topic /lidar
+```
+
+You should see a large array of numbers with the distance values to the wall. We can also visualise the lidar in gazebo as well. Try adding the lidar visualisation by going to the top right menu and searching for `visualise lidar`. After selecting it you might need to refresh the topic in the menu and then you should see a visualisation of the lidar in gazebo.
 
 <details>
 <summary>If you are stuggling to work out how to write this have a look at the summary below.</summary>
@@ -203,8 +212,7 @@ The horizontal tag tell you how many data points to get over what range. The ver
 
 </details>
 
-
-Using your knowledge from the last step plus the following [links](https://gazebosim.org/docs/fortress/sensors) see if you can setup the [Camera](http://sdformat.org/spec?elem=sensor) and IMU.
+Using your knowledge from the last step plus the following [links](https://gazebosim.org/docs/fortress/sensors) see if you can setup the [Camera](http://sdformat.org/spec?elem=sensor) and IMU. Again you can check the values after adding the sensors using either the command line or gazebo visuals (for the camera you will need to search for `display image`).
 
 Camera
 
@@ -285,13 +293,15 @@ IMU
 
 </details>
 
+You now have a working model ready to be used in ROS2. Have another read through the urdf and make sure you understand the different parts of the urdf.
+
 
 ### Running in RVIZ
 
 We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and src directory) and then create a new master package. We will use this package to run all our nodes from.
 
 ```sh
-ros2 pkg create -build-type ament_cmake <package_name>
+ros2 pkg create -build-type ament_cmake <package_name> <dependencies>
 ```
 
 After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "models" and "meshes" and then copy the relevant files to your new package.
@@ -304,6 +314,26 @@ colcon build
 
 Instead of building the entire the system after every change we can select just the pacakages that we want to build using "--packages-select <packages>" after the build command.
 
+Now we can try launching our system using the launch file we created, first have a look at the launch file and notice what things we are trying to launch including gazebo, rviz2 and a robot state publisher. After viewing run the launch file with the following.
+
+```sh
+source install/setup.bash
+ros2 launch <package_name> sdf.launch.py
+```
+
+You should see gazebo and rviz start up. Again you can check that your gazebo model is working correctly by driving it around and visualising the topics. However in RVIZ, which is the ROS side, you will notice that there are no visuals coming through and that if you echo the `/cmd_topic` there are no velocity commands. This is because we haven't added a bridge that connects gazebo and ROS2. We will now create this bridge node. Add the following lines under the robot ExecuteProcess.
+
+```xml
+  bridge = Node(
+    package='ros_gz_bridge',
+    executable='parameter_bridge',
+    arguments=['/lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan',],
+    output='screen',
+  )
+```
+
+This will connect the lidar to the rviz by specifying the topic we want and the message type (don't forget to add the `bridge` variable to the launch description). Try rebuilding your package again and the launching it again. In RVIZ add the lidar topic and see what comes up. You will notice that the lidar still isn't visible, why is that? This is because RVIZ and ROS2 use frame id's and transforms to position everything in the world and the current frame id for this topic doesn't have a transform back to the base_link.
+
 When setting up our system we may run into issues where the components of the robot are not in the place we expect. We can have a look at these transforms using the following command.
 
 ```sh
@@ -311,6 +341,38 @@ ros2 run tf2_tools view_frames
 ```
 
 This command listens for transform publishes on the ROS2 network and records them. It will then save these transforms to a pdf which can be viewed. Open up the view_frames file and take a look at the current transforms.
+
+We can also echo the topic once to see what the frame_id currently is.
+
+```sh
+ros2 topic echo /lidar --once
+```
+
+scroll to the header in the topic and check the frame id. Now that we know what the problem is it is time to fix it. Go back to your pioneer urdf and add the following line in under the <sensor> tag.
+
+```xml
+<ignition_frame_id>laser_frame</ignition_frame_id>
+```
+
+save and rebuild your system and then run it again, you should now see that the lidar comes up when you add it to RVIZ (save the rviz config file so you don't have to do this every time).
+
+We now need to add in a few more topic to bridge including:
+
+* imu
+* camera
+* odom
+* cmd_vel
+
+See if you can add these in yourself, with the command velocity and odom you will also need to add in some topic remappings. To do this add the following lines after the `output=` line.
+
+```xml
+  remappings=[('/cmd_vel','/cmd_vel'),
+    ('/model/pioneer3at_body/odometry','/odom'),
+    ('/model/pioneer3at_body/tf','/tf')
+  ]
+```
+
+Remapping allows you to easily change a nodes subscribing or publishing name so they all line up.
 
 We now need to add some new topics to the launch file to make it work the way we want it.
 
@@ -326,18 +388,28 @@ We have seen SLAM toolbox used yesterday, today we are going to set it up oursel
 sudo apt install ros-humble-slam-toolbox
 ```
 
-Try running SLAM toolbox with your current simulation now and view the topics in rqt_graph. What do you notice about the topic connections?
+Once installed we will add slam to our launch file, add the following lines to the launch file.
 
-```sh
-ros2 run slam_toolbox
+```python
+    slam_toolbox = Node( package='slam_toolbox', 
+                         executable='async_slam_toolbox_node', 
+                         parameters=[
+                                get_package_share_directory('<package_name>') + '/config/mapping.yaml'
+                        ], 
+                        output='screen',
+    )
 ```
 
-Currently SLAM toolbox is looking for lidar scans on one topic name but the lidar is publishing to a different name. To make this work we need to connect up the LiDAR topics, the naive approach would be to rewrite the nodes so that the topic name from one pacakge lines up with another. The problem with this is that you won't be able to use other peoples packages easily since you don't download the code just the compiled shared library of them. The better approach is to connect the two topics using remapping in the launch file. Let's create 
+This time we are loading in a config file using the get_package_share_directory. Have a look at the mapping yaml under the config file and you will see all the configuration settings for SLAM toolbox.
 
-In addition, we will need [navigation2]() for path planning and driving. These can be installed using the follow package.
+Try running running your launch file again with SLAM toolbox with your current simulation now and view the topics in rqt_graph. What do you notice about the topic connections?
+
+Currently SLAM toolbox is looking for lidar scans on one topic name but the lidar is publishing to a different name. To make this work we need to connect up the LiDAR topics, the naive approach would be to rewrite the nodes so that the topic name from one pacakge lines up with another. The problem with this is that you won't be able to use other peoples packages easily since you don't download the code just the compiled shared library of them. The better approach is to connect the two topics using remapping in the launch file. Go back to your slam toolbox node in your launch file and add the remappings.
+
+For autonomously driving the robot we are going to use the nav2 plugin, this plugin is huge and has many additional features that we aren't going to go into today.In addition, we will need [navigation2]() for path planning and driving. These can be installed using the follow package.
 
 ```sh
-sudo apt install ros-humble-slam-toolbox ros-humble-navigation2 ros-humble-nav2-bringup
+sudo apt install ros-humble-navigation2 ros-humble-nav2-bringup
 ```
 
 ### Moving onto the real robot
@@ -346,6 +418,8 @@ Now we are going to move our code to the real pioneers. Make a copy of your curr
 
 The robot is still using the simulated hardware, this is because iwe haven't told the system to use drivers to talk to the real devices. We will download the following packages to setup our robot correctly.
 
+* joy for controller
+* joy teleop for going between controller and velocity commands
 * sick_scan_xd for the lidar
 * phidget_spatial for the IMU
 * luxonis depth ai for the camera
