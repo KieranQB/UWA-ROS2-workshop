@@ -306,6 +306,15 @@ ros2 pkg create -build-type ament_cmake <package_name> <dependencies>
 
 After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "models" and "meshes" and then copy the relevant files to your new package.
 
+To add the relevant directories to the install directory add the following lines to your CMakeList.txt
+
+```xml
+install(
+  DIRECTORY launch config meshes rviz urdf robots models maps worlds
+  DESTINATION share/${PROJECT_NAME}
+)
+```
+
 Once you are happy that you have set it up you can use colcon build to build the package.
 
 ```sh
