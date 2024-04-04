@@ -64,9 +64,9 @@ ign gazebo basic_urdf.sdf
 #terminal 2
 ign service -s /world/pioneer_world/create --reqtype ignition.msgs.EntityFactory --reptype ignition.msgs.Boolean --timeout 1000 --req 'sdf_filename: "<filePath>/robots/pioneer.urdf", name: "urdf_model"'
 ```
-NOTE: The filepath is from the perspective of the basic_urdf.sdf world file so you need to replace <filepath> with something that will lead to the directory above robots from the perspective of the basic_urdf.sdf file
+HINT: The filepath is from the perspective of the basic_urdf.sdf world file so you need to replace <filepath> with something that will lead to the directory above robots from the perspective of the basic_urdf.sdf file
 
-NOTE: Now is also a good time to enable Autosave for VSCode if you're using it from a new VM. It seems like it isn't enabled by default and for some reason not saving the file will cause any edits made to things like colour or wheels to have no effect until the file is saved.
+NOTE: Now is also a good time to make sure you enable Autosave for VSCode if you're using it from a new VM. Press file in the top left corner and click autosave. It seems like it isn't enabled by default and for some reason not saving the file will cause any edits made to things like colour or wheels to have no effect until the file is saved.
 
 You will notice that there are 3 wheels missing and that the chassis colour is incorrect. In addition, you don't have any sensors currently attached. Try to see if you can attach the remaining 3 wheels and update the chassis colour to be red. Try changing only one or two things at a time as it might need to be reverted. Once you have the wheels attached you can try driving the robot. In iginition gazebo click the top left button and search for `Teleop`, click on it and then scroll down to where it has been added into the menu. Change the settings to keyboard and try driving your robot (you will need to press play on the environment), do you notice anything strange?
 
