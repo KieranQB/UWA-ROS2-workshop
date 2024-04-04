@@ -348,13 +348,18 @@ Once you are happy that you have set it up you can use colcon build to build the
 colcon build
 ```
 
-Instead of building the entire the system after every change we can select just the pacakages that we want to build using "--packages-select <packages>" after the build command.
+You will need to rebuild every time you change something in the package but instead of building the entire the system after every change we can select just the pacakages that we want to build using "--packages-select <packages>" after the build command.
 
 Now we can try launching our system using the launch file we created, first have a look at the launch file and notice what things we are trying to launch including gazebo, rviz2 and a robot state publisher. After viewing run the launch file with the following.
 
 ```sh
 source install/setup.bash
 ros2 launch <package_name> sdf.launch.py
+```
+
+NOTE: You may find this command list useful for rebuilds
+```sh
+colcon build --packages-select <packages> && source install/setup.bash && ros2 launch <package_name> sdf.launch.py
 ```
 
 You should see gazebo and rviz start up. Again you can check that your gazebo model is working correctly by driving it around and visualising the topics. However in RVIZ, which is the ROS side, you will notice that there are no visuals coming through and that if you echo the `/cmd_topic` there are no velocity commands. This is because we haven't added a bridge that connects gazebo and ROS2. We will now create this bridge node. Add the following lines under the robot ExecuteProcess.
