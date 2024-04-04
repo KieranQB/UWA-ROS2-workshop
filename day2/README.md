@@ -135,6 +135,10 @@ The horizontal tag tell you how many data points to get over what range. The ver
 Once you have added this in and saved it try running the system again (you might need to close your previous gazebo session). Gazebo like ros has the ability to view topics by using:
 
 ```sh
+ign topic -l
+```
+
+```sh
 ign topic -e --topic /lidar
 ```
 
@@ -298,7 +302,7 @@ You now have a working model ready to be used in ROS2. Have another read through
 
 ### Running in RVIZ
 
-We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and src directory) following the same layout as below (standard ROS folder layout).
+We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and underneath that folder src directory) following the same layout as below (standard ROS folder layout).
 
 ```sh
 - workspace/

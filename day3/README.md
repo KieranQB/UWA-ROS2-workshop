@@ -56,9 +56,6 @@ export ROS_DOMAIN_ID=5
 Now anyone not using the ROS DOMAIN of 5 won't be able to send or recieve message on my ROS stack.
 
 
-Use ROS XX to use a different PCs master
-
-
 The following section is specific to Ubuntu as most ROS systems run on Ubuntu. The following can make your applications more user friendly.
 
 When you open a terminal or an executable that uses bash the .bashrc script, which lives in your home directory, runs adding functionality to your terminal. There are many things you might want to add to this to make your life easier. First you might want to add sourcing ROS to your terminal, add the following line to your .bashrc
@@ -240,6 +237,15 @@ The last thing we need to do is tell our system that these nodes exist. Since we
 ```
 
 Once built you can run it, try testing the latency of the camera by waving your hand in front of the camera. If you notice a difference between when your hand is in front of the camera and when it is being displayed the your system is running too slow. A lagging camera will make it almost impossible to run camera based AI at real time speeds needed for robotics.
+
+```sh
+ros2 run <package_name> webcam_pub
+```
+
+
+```sh
+ros2 run <package_name> webcam_sub
+```
 
 Now we can display images as a video feed it is time to add in some object classification. We are going to edit the existing subscriber node to use yolov7 which can be used natively with python3. To add in image calssification all we need to do is add the following three lines between recieving the message and displaying it.
 
