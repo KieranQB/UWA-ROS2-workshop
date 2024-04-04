@@ -298,19 +298,42 @@ You now have a working model ready to be used in ROS2. Have another read through
 
 ### Running in RVIZ
 
-We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and src directory) and then create a new master package. We will use this package to run all our nodes from.
+We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and src directory) following the same layout as below (standard ROS folder layout).
+
+```sh
+- workspace/
+  - src/
+    - <packageName>/
+      - package.xml
+      - CMakeLists.txt (or setup.py)
+      - src/ (where you define your nodes)
+      - include/ (header files)
+      - launch/ (files to launch your application)
+      - config/ (yaml and other config files used in nodes and launch files)
+      - maps/ (saved maps for driving)
+      - models/ (all robot and world model files)
+        - meshes/
+        - worlds/
+        - robots/
+      - rviz (config for RVIZ)
+  - build/
+  - install/ (where you compiled code gets run from)
+  - log/
+```
+
+Use the following command to build your package, dependencies are optional and not required for this exercise.
 
 ```sh
 ros2 pkg create -build-type ament_cmake <package_name> <dependencies>
 ```
 
-After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "models" and "meshes" and then copy the relevant files to your new package.
+After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "worlds" and "meshes" and then copy the relevant files from the Resources directory to your new package.
 
-To add the relevant directories to the install directory add the following lines to your CMakeList.txt
+When a c++ package is build it will look at the CMakeList file to determin how to build everything. At this stage we just want all our files to be added to the install directory so add the following to the CMakeList.txt. Alternatively if you have a python package then the system uses the setup.py to install the python scripts (refer to the online documentation for more details)
 
 ```xml
 install(
-  DIRECTORY launch config meshes rviz urdf robots models maps worlds
+  DIRECTORY launch config meshes robots worlds
   DESTINATION share/${PROJECT_NAME}
 )
 ```

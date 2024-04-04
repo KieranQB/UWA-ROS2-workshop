@@ -1,53 +1,130 @@
 # DAY 4: Scripting and going your own way
 
-Today we will be looking at some scripting tools that aren't specific to ROS but will come in handy when looking to deploy your solutions.
+Today we will be looking at manipulators and then finishing off whatever you might have missed.
 
-## Part 1: ROSbags and scripts
+changes to make
 
-First we will start with the last ROS specific thing in our course which is ROSbags. ROSbags allow you to capture topics while the system is running and stores them so you can view them later. This is useful in many different ways, one of the most popular usages is creating maps offline. As you can imagine SLAM takes a lot of resources to constantly update and build a map.
+moveit_pose_client.cpp line 29 return result.future (same as line 39)
 
-Go back to day 1 where you mapped out the cafe. Start up the script for part 5 and then run the following in a seperate terminal
+## Part 1: Manipulators
 
-```sh
-ros2 bag record -o cafeMapping
+We will use a prebuilt package taken from one of the online repositories. This is a package developed by someone in the ROS community but not added to default shared ROS library. This means we need to download (or clone) it to our local repository and then build it using our colcon building tool.
+
+install ros2 ur_robot
+
+## Controllers
+
+Every motor for every joint on the robots we control needs a driver to translate our ROS commands into commands specific to the robot we are dealing with.
+`ROS control` offers "controllers" which oversee a commanded trajectory and supply the drivers with low level, high frequency commands to ensure that the correct path is taken.
+
+![ros_control_diagram](./resources/images/ros_control_diagram.png)
+
+This is not the only way to control robot.
+There are many ways in which the driver for the robotic manipulator may be interfaced with, all depending on the design of the driver.
+The simulation we are running has the controllers loaded and operated by Gazebo itself, using the `gazebo_ros_control` package which is downloaded with the full desktop version of ROS.
+The joint trajectories are published to Gazebo which emulates the effect of the controller.
+
+Regardless, lets go explore what controllers are running in our simulation, and where they are defined/configured.
+
+
+### Defining the Controllers
+
+It is recommended to install an `rqt` widget called [`rqt_controller_manager`][ros-rqt-controller-manager].
+
+```bash
+sudo apt install ros-$ROS_DISTRO-rqt-controller-manager
 ```
 
-This will record all available topics (seen when running ros2 topic list). Drive around the cafe mapping out as much of the space as you can. Once finished stop the recording by pressing ctl + c, you should see a new bag file in the directory where you ran the ros bag. The old standard for ROS bag recordings was sqlite3 format, however this has changed to mcap as it gives a better compression. To record an mcap file we use XX.
+Run this using the below command and let's see what got loaded when we launched our simulation.
 
-You can examine the contents of a ROS bag by running the following command.
-
-```sh
-ros2 bag info cafeMapping
+```bash
+rqt -s rqt_controller_manager
 ```
 
-Once we have our ROSbag we can then play it back later using
+You should see something like this when you select the `/controller_manager` namespace in the drop down box at the top.
 
-```sh
-ros2 bag play cafeMapping
+![controller_manager](./resources/images/controller_list.png)
+
+Double click on these individual entries and observe the joints that they have claimed, and what type of controller it is.
+
+You can alternatively call a particular `rosservice` call to the controller manager.
+The controller manager is the node which coordinates controllers and makes sure they do not clash during run time.
+Are you able to find the service to call and obtain the list without guidance?
+
+<details><summary>Click for a walk through</summary>
+<p>
+
+---
+
+```bash
+# List the services available
+rosservice list
+
+# List the controllers
+rosservice call /controller_manager/list_controllers
 ```
 
-This will play back the recording messages, and they are available to view with things like ros2 topic echo. Try looking at the messages coming from one of the topics in the ROS bag. This is useful as we can then run mapping functions on the collected data without running the whole system. For example, if our robot has limited processing power but we want it to use a map of the local operating area we might first record the topics relevant to mapping then move to a high performance PC to generate the map and then place the map on the limited power pc. You can also use this approach to build maps of large areas breaking the mapping into multiple sections and remove any bad scans.
+---
 
-Another thing we can do with ROSbags is capture data on a specific trigger. This is called a snapshot and records the last X amount of seconds before the triggering event.
+</p>
+</details>
+<br>
+
+So, where does these come from?
+Spend some time now searching through the [`universal_robot`](./Workshop/universal_robot/universal_robot) directory under [`Workshop`](./Workshop).
+Can you find the config file where the controllers are defined, and when they are loaded?
+
+<details><summary>Click to see the files</summary>
+<p>
+
+---
+
+The configuration for the arm and gripper controllers are loaded in the very launch file we started the simulation off with ([`ur5.launch`][ur5-launch])
+
+Lines 25 and 26 are below.
+
+```xml
+<rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
+<node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller gripper_controller" respawn="false" output="screen"/>
+```
+
+* **Line 25**: shows you where you can find the controller config file.
+* **Line 26**: shows us how this configuration file is used to load the controllers we want, and have them take control of the joints we want them to.
+
+But, what about the `joint_state_controller`?
+
+This is contained in another launch file, referenced on line 22 of the [`ur_gazebo ur5.launch`][ur5-launch] file we have been looking at.
+
+```xml
+<include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
+```
+
+---
+
+</p>
+</details>
+<br>
 
 
-bashrc
+### Putting the controllers to use
 
+It is recommended to install a simple `rqt` widget called [`rqt_joint_trajectory_controller`][ros-rqt-joint-trajectory-controller].
 
-using something like terminator to start up multiple nodes (docker is better for this)
+```bash
+sudo apt install ros-$ROS_DISTRO-rqt-joint-trajectory-controller
+```
 
+Launch using the following command
 
-Use of ROS DOMAIN to seperate multiple ROS running environments
+```bash
+rqt -s rqt_jzoint_trajectory_controller
+```
 
+![traj_controller](./resources/images/traj_controller.png)
 
-Use ROS XX to use a different PCs master
-
-
-Make the App a desktop icon to easily start the system
-
-
-
-Make the app a daemon to start when the PC boots up.
+This widget allows one to set individual joint values on the fly, and the commands are all turned into joint trajectories and sent to the controllers.
+Run `rqt_graph` after hitting the red power button (it will turn green if successful) to see how this widget operates in the ROS stack.
+Also, echo the commands Gazebo is receiving from this widget.
 
 ## Part 2: Doing your own thing
 
