@@ -305,8 +305,10 @@ You now have a working model ready to be used in ROS2. Have another read through
 We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and src directory) and then create a new master package. We will use this package to run all our nodes from.
 
 ```sh
-ros2 pkg create -build-type ament_cmake <package_name> <dependencies>
+ros2 pkg create --build-type ament_cmake <package_name>
 ```
+
+NOTE: you can name the package whatever you want
 
 After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "models" and "meshes" and then copy the relevant files to your new package.
 
