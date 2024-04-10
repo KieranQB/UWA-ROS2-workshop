@@ -522,6 +522,16 @@ See if you can add these in yourself, with the command velocity and odom you wil
 
 Remapping allows you to easily change a nodes subscribing or publishing name so they all line up.
 
+If you are still getting transform errors you might need to add in a static transform between the gazebo footprint and the base footprint
+
+```python
+pioneer_base_fp_link_tf = Node(package='tf2_ros', 
+                                executable='static_transform_publisher', 
+                                name='base_fp_linkTF', 
+                                output='log', 
+                                arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0',  'pioneer3at_body/base_footprint', 'base_footprint'])
+```
+
 <details>
 <summary>Example of the final bridge node</summary>
 <br>
