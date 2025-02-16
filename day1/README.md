@@ -224,4 +224,19 @@ ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data:
 Once the service is called you will see the request being sent and a response. If you look in your workspace directory you will also see 2 new files. One is a .pgm file which is a binary version of a grayscale image representing the map and the other file is a .yaml which specifies some parameters for the map (feel free to look into these parameters [here](https://index.ros.org/p/nav2_map_server/)). The map you have just made has been saved and can now be loaded again at a later date.
 
 
+## Part 3: Simulating a UR5e arm
+
+No we are going to set up a simulation of the UR5e arms. If you are working in a dev container we will need to build a new docker image to work from using the following Dockerfile:
+
+If you are working on your own ubuntu system then you might want to just install and run this directly without docker.
+
+- Following the instructions here to install ROS2 Humble on your ubuntu system [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)
+- Once installed install the UR5e package for humble following the getting started section in [this](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver) github repo
+- Try and get the simulated robot running and move it to the home position using the web portal
+- setup the UR5e moveit package and run it
+- If you try to run the system now what is the error that comes up?
+- Try to activate the missing controller and ensure the ur5e is in the home position.
+- Now send trajectory commands using the moveit interaface and confirm that the simulated robot is moving.
+
+
 That is it for today, the skills you learn here will help with the rest of the week in diagnosing various issues and so on.
