@@ -25,113 +25,44 @@ Otherwise let us know of any issues and we will try to get to it when we can.
 
 ## Part 1: Workshop Summary
 
-This workshop consists of four days focusing on getting familiar with the basics of ROS2 and applying it to a few scenarios. The workshop material is cloned from these repositories:
-* **Tuesday**: Starting from scratch - setting up the tools, running some simulation tools and peeling back the first layer of the ROS 2 environment.
-* **Wednesday**: Mobile Robots - Start by working on a simulated environment of a mobile robot and driving autonomously. Move on to the afternoon with real robots.
-* **Thursday**: [Manipulation][04-manipulation] and vision - Running a simulated environment of the ur5e robots and then using opencv to process vision based information.
-* **Friday**: scripting tools and rosbags - capture real world information for reviewing and make basic scripts to auto start your solution.
-
-#### Workspace Setup
-
-Across these four days, you will incrementally build on your pass knowledge slowly building elements by yourself. Each day will bring different tasks so if you don't finish one day you can always complete it later. 
-
-<details><summary>Try to figure out how to create a `catkin` workspace yourself, otherwise, click here to for answer!</summary>
-  
-```sh
-mkdir -p ~/workshop_ws/src  # Creates a workspace directory named workshop_ws.
-cd ~/workshop_ws/src
-```
-
-</details>
-
-#### Git Clone
-
-For each day, clone the repository linked below into the
-`src/` directory of the workspace `workshop_ws`. 
-
-<details><summary>Try to figure this out yourself first, otherwise, click here to for answer!</summary>
-
-E.g. for the [sensor-integration][01-sensor-integration] repository, you'd type:
-
-```sh
-cd ~/workshop_ws/src
-git clone https://github.com/ros-workshop/sensor-integration.git
-```
-Or if you are using SSH keys:
-```
-cd ~/workshop_ws/src
-git clone git@github.com:ros-workshop/sensor-integration.git
-```
-
-</details>
-
-#### Colcon Build
-
-Build and then source the workspace. 
-
-<details><summary>Try to figure this out yourself first, otherwise, click here to for answer!</summary>
-
-+ **Note**: If this command fails, install catkin tools following the instructions [here][catkin-tools].
-
-+ **Tip**: Source any workspaces you want to extend before running `catkin build`.
+This workshop consists of three days focusing on getting familiar with the basics of ROS2 and applying it to a few scenarios. The workshop material is cloned from these repositories:
+* **Monday**: Starting from scratch - setting up the tools, running some simulation tools and peeling back the first layer of the ROS 2 environment.
+* **Tuesday**: Mobile Robots - Start by working on a simulated environment of a mobile robot and driving autonomously. Move on to the afternoon with real robots.
+* **Wednesday**: [Manipulation][04-manipulation] and vision - Running a simulated environment of the ur5e robots and then using opencv to process vision based information.
+* **Extra Interests**: scripting tools and rosbags - capture real world information for reviewing and make basic scripts to auto start your solution.
 
 
-```sh
-cd ~/workshop_ws
-catkin build
-source devel/setup.bash
-```
-</details>
-
-
-### Tuesday: Starting from scratch
+### Monday: Starting from scratch
 **Topics**:
 + Work through the startcreatingrobots by John Vial found [here](https://startcreatingrobots.com/)
 + Explore Nodes and Topics from command line
++ Build a ROS2 simulation for the UR5/e robot arms
 
-### Wednesday: Mobile Robot
+### Tuesday: Manipulator and Mobile Robots
 **Topics**:
++ Build a ROS2 simulation for the UR5/e robot arms
 + Creating a URDF
 + Visualising your robot
 + Fixing a broken URDF
 + Adding a sensor to a robot
 + Controlling a simulated robot
 + Detecting an obstacle and stopping the robot
-+ Port your solution to Pioneer Robot and get it working
-
 
 + Creating a map using a lidar
 + Simultaneous Localisation and Mapping (SLAM)
 + Using nav2 for navigation
 + Finding an object by navigating around a map
 
-### Thursday: Manipulators and Vision
+### Wednesday: Real Robots and Vision
 **Topics**:
++ Porting simulation environment to real Pioneers
++ Setup UR5e control using moveit
 + Using a camera to detect Apriltags
 + Using a real camera with ROS
 + Camera calibration
-+ Fusing lidar and camera/DNN data for person detection and localisation
 
-### Friday: Scripting and working on your own
+
+### Extras: Scripting and working on your own
 **Topics**:
-+ Creating a Moveit configuration package
-+ Moving Your robot in `rviz`
-+ Using the Moveit class in a node
-+ Creating a OctoMap using a depth camera
++ Learn about some extra tools that are useful when working with ROS2
 
-### Friday: [Mobility Plus Manipulation][05-mobility-plus-manipulation]
-**Topics**:
-+ How to integrate multiple ROS nodes together 
-
-[01-sensor-integration]: https://github.com/ros-workshop/sensor-integration
-[02-slam-navigation]: https://github.com/ros-workshop/slam-navigation
-[03-perception]: https://github.com/ros-workshop/perception
-[04-manipulation]: https://github.com/ros-workshop/manipulation
-[05-mobility-plus-manipulation]: https://github.com/ros-workshop/mobility-plus-manipulation
-
-[gh-git-flow]: https://guides.github.com/introduction/flow
-[gh-ssh-keys]: https://help.github.com/articles/connecting-to-github-with-ssh/
-
-[ros-cmakelists]: http://wiki.ros.org/catkin/CMakeLists.txt
-[ros-custom-msg]: http://wiki.ros.org/ROS/Tutorials/DefiningCustomMessages
-[ros-tutorials]: http://wiki.ros.org/ROS/Tutorials
