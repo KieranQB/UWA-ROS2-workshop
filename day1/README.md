@@ -226,12 +226,25 @@ Once the service is called you will see the request being sent and a response. I
 
 ## Part 3: Simulating a UR5e arm
 
-No we are going to set up a simulation of the UR5e arms. If you are working in a dev container we will need to build a new docker image to work from using the following Dockerfile:
+Now we are going to set up a simulation of the UR5e arms. If you are working in a dev container we will need to build a new docker image to work from using the following Dockerfile:
 
 If you are working on your own ubuntu system then you might want to just install and run this directly without docker.
 
-- Following the instructions here to install ROS2 Humble on your ubuntu system [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)
-- Once installed install the UR5e package for humble following the getting started section in [this](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver) github repo
+- Following the instructions here to install ROS2 Jazzy on your ubuntu system [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+- Once installed install the UR5e package for jazzy following the getting started section in [this](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver) github repo
+  - installed using `sudo apt install ros-jazzy-ur`
+  - you might need to install docker
+    ```
+    sudo apt install ca-certificates curl gnupg lsb-release
+    sudo mkdir -m 0755 -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo ln -sf /usr/share/keyrings/docker-archive-keyring.gpg /etc/apt/keyrings/docker.gpg
+    sudo apt update
+    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    ```
+
+- try running the simuation system using `ros2 run ur_client_library start_ursim.sh -m ur5e`
 - Try and get the simulated robot running and move it to the home position using the web portal
 - setup the UR5e moveit package and run it
 - If you try to run the system now what is the error that comes up?

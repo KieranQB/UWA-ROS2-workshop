@@ -4,10 +4,10 @@ The focus of today is getting familiar with the simulation and visualisation too
 
 ## Prerequisite
 
-Ubuntu 22.04
+Ubuntu 24.04
   - VM with .iso
     - [virtualBox](https://www.virtualbox.org/)
-    - [ubuntu 22.04 .iso](https://ubuntu.com/download/desktop)
+    - [ubuntu 24.04 .iso](https://ubuntu.com/download/desktop)
   - linux PC
     - dual boot
     - install directly
@@ -16,12 +16,12 @@ Ubuntu 22.04
     - Google Cloud
     - The Construct (Only 8 hours a day on free account)
 
-Install [ign](https://gazebosim.org/docs/fortress/install_ubuntu)
-Install [ros2 humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
+Install [gazebo harmonic](https://gazebosim.org/docs/harmonic/install_ubuntu)
+Install [ros2 jazzy](https://gazebosim.org/docs/harmonic/ros_installation/)
 
 ## Part 1: The simulation
 
-All good projects should start from a simulation, this will help your quickly develop and test your current solution in a safe environment. The simulated environment also presents the opportunity to test in hard to access regions as you define the world yourself. We will be using Gazebo Ignition as our simulation enviornment as it works well with ROS2. In the files you have downloaded you would have seen a .sdf file and a .urdf file. The sdf file describes the world (and can also decribe the robot model in the world), a urdf on the otherhand will describe just a robot and it's connections. For this module we will only be editing the robot model and leaving the sdf file as is, however feel free to open up the sdf file and have a look through (ask the demonstrators if you want to know more).
+All good projects should start from a simulation, this will help your quickly develop and test your current solution in a safe environment. The simulated environment also presents the opportunity to test in hard to access regions as you define the world yourself. We will be using Gazebo Harmonic as our simulation enviornment as it works well with ROS2. In the files you have downloaded you would have seen a .sdf file and a .urdf file. The sdf file describes the world (and can also decribe the robot model in the world), a urdf on the otherhand will describe just a robot and it's connections. For this module we will start by editing the robot model and leaving the sdf file for later.
 
 The Unified Robot Description Format (URDF) is an XML format that describes a robot's hardware, including it's chassis, linkages, joints, sensor placement, etc. Take a look at NASA's Robonaut to see what's possible with robot URDFs. We will start by editing the half finished model to look more like the pioneers and then add in the relevant sensors. start by running the below command in a terminal to determine the links and joints.
 
@@ -78,9 +78,13 @@ If you read through the provided urdf you may notice is three of the wheels are 
 
 ```sh
 #terminal 1
-ign gazebo basic_urdf.sdf 
+gz sim basic_urdf.sdf 
 #terminal 2
-ign service -s /world/pioneer_world/create --reqtype ignition.msgs.EntityFactory --reptype ignition.msgs.Boolean --timeout 1000 --req 'sdf_filename: "<filePath>/robots/pioneer.urdf", name: "urdf_model"'
+gz service -s /world/pioneer_world/create \
+  --reqtype gz.msgs.EntityFactory \
+  --reptype gz.msgs.Boolean \
+  --timeout 1000 \
+  --req 'sdf_filename: "<filePath>/robots/pioneer.urdf", name: "urdf_model"'
 ```
 
 You will notice the missing wheels as well as the chassis colour is incorrect (It should be red). In addition, you don't have any sensors currently attached. Try to see if you can attach the remaining wheels and update the chassis colour to be red. Try changing only one or two things at a time as it might need to be reverted. Once you have the wheels attached you can try driving the robot. In iginition gazebo click the top left button and search for `Teleop`, click on it and then scroll down to where it has been added into the menu. Change the settings to keyboard and try driving your robot (you will need to press play on the environment in the bottom left of the screen), do you notice anything strange?
