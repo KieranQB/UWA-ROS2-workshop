@@ -1,131 +1,215 @@
-# DAY 4: Scripting and going your own way
-
-Today we will be looking at manipulators and then finishing off whatever you might have missed.
-
-changes to make
-
-moveit_pose_client.cpp line 29 return result.future (same as line 39)
-
-## Part 1: Manipulators
-
-We will use a prebuilt package taken from one of the online repositories. This is a package developed by someone in the ROS community but not added to default shared ROS library. This means we need to download (or clone) it to our local repository and then build it using our colcon building tool.
-
-install ros2 ur_robot
-
-## Controllers
-
-Every motor for every joint on the robots we control needs a driver to translate our ROS commands into commands specific to the robot we are dealing with.
-`ROS control` offers "controllers" which oversee a commanded trajectory and supply the drivers with low level, high frequency commands to ensure that the correct path is taken.
-
-![ros_control_diagram](./resources/images/ros_control_diagram.png)
-
-This is not the only way to control robot.
-There are many ways in which the driver for the robotic manipulator may be interfaced with, all depending on the design of the driver.
-The simulation we are running has the controllers loaded and operated by Gazebo itself, using the `gazebo_ros_control` package which is downloaded with the full desktop version of ROS.
-The joint trajectories are published to Gazebo which emulates the effect of the controller.
-
-Regardless, lets go explore what controllers are running in our simulation, and where they are defined/configured.
+# Day 4: Scripting, control and lifecycle
 
 
-### Defining the Controllers
+Today we will be looking at two more aspects of Robotics, some scripting tools that aren't specific to ROS but will come in handy when looking to deploy your solutions and image processing and classification used in many aspects of control.
 
-It is recommended to install an `rqt` widget called [`rqt_controller_manager`][ros-rqt-controller-manager].
+## Part 1: ROSbags and scripts
 
-```bash
-sudo apt install ros-$ROS_DISTRO-rqt-controller-manager
+First we will start with the last ROS specific thing in our course which is ROSbags. ROSbags allow you to capture topics while the system is running and stores them so you can view them later. This is useful in many different ways, one of the most popular usages is creating maps offline. As you can imagine SLAM takes a lot of resources to constantly update and build a map.
+
+Go back to start creating a robot package where you mapped out the cafe. Start up the script for day 5 and then run the following in a seperate terminal
+
+```sh
+ros2 bag record -o cafeMapping -a
 ```
 
-Run this using the below command and let's see what got loaded when we launched our simulation.
+This will record all available topics (seen when running ros2 topic list). Drive around the cafe mapping out as much of the space as you can. Once finished stop the recording by pressing ctl + c, you should see a new bag file in the directory where you ran the ros bag. The old standard for ROS bag recordings was sqlite3 format, however this has changed to mcap as it gives a better compression. To record an mcap file we use XX.
 
-```bash
-rqt -s rqt_controller_manager
+You can examine the contents of a ROS bag by running the following command.
+
+```sh
+ros2 bag info cafeMapping
 ```
 
-You should see something like this when you select the `/controller_manager` namespace in the drop down box at the top.
+Once we have our ROSbag we can then play it back later using
 
-![controller_manager](./resources/images/controller_list.png)
-
-Double click on these individual entries and observe the joints that they have claimed, and what type of controller it is.
-
-You can alternatively call a particular `rosservice` call to the controller manager.
-The controller manager is the node which coordinates controllers and makes sure they do not clash during run time.
-Are you able to find the service to call and obtain the list without guidance?
-
-<details><summary>Click for a walk through</summary>
-<p>
-
----
-
-```bash
-# List the services available
-rosservice list
-
-# List the controllers
-rosservice call /controller_manager/list_controllers
+```sh
+ros2 bag play cafeMapping
 ```
 
----
+This will play back the recording messages, and they are available to view with things like ros2 topic echo. Try looking at the messages coming from one of the topics in the ROS bag. This is useful as we can then run mapping functions on the collected data without running the whole system. For example, if our robot has limited processing power but we want it to use a map of the local operating area we might first record the topics relevant to mapping then move to a high performance PC to generate the map and then place the map on the limited power pc. You can also use this approach to build maps of large areas breaking the mapping into multiple sections and remove any bad scans.
 
-</p>
-</details>
-<br>
+Another thing we can do with ROSbags is capture data on a specific trigger. This is called a snapshot and records the last X amount of seconds before the triggering event, where X is a specified buffer of time.
 
-So, where does these come from?
-Spend some time now searching through the [`universal_robot`](./Workshop/universal_robot/universal_robot) directory under [`Workshop`](./Workshop).
-Can you find the config file where the controllers are defined, and when they are loaded?
-
-<details><summary>Click to see the files</summary>
-<p>
-
----
-
-The configuration for the arm and gripper controllers are loaded in the very launch file we started the simulation off with ([`ur5.launch`][ur5-launch])
-
-Lines 25 and 26 are below.
-
-```xml
-<rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
-<node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller gripper_controller" respawn="false" output="screen"/>
+```sh
+ros2 bag record -d 30 --snapshot-mode -a
 ```
 
-* **Line 25**: shows you where you can find the controller config file.
-* **Line 26**: shows us how this configuration file is used to load the controllers we want, and have them take control of the joints we want them to.
+In our code we then add a client ready to request a snapshot. Then somewhere further in the code we send a request to the client requesting a snapshot be taken and wait for it to return a result.
 
-But, what about the `joint_state_controller`?
+```python
+self.snapshot_client = self.create_client(Snapshot, '/rosbag2_recorder/snapshot')
 
-This is contained in another launch file, referenced on line 22 of the [`ur_gazebo ur5.launch`][ur5-launch] file we have been looking at.
+...
 
-```xml
-<include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
+snapshot_req = Snapshot.Request()
+self.future = self.snapshot_client.call_async(snapshot_req)
+while(self.future.result() == False):
+    self._timer_cb()
 ```
 
----
+If you are working in a team you might end up working on the same robot at the same time but don't want to interfere with each other. We can set the ROS_DOMAIN id to a unique number so that each users comms are in a different space.
 
-</p>
-</details>
-<br>
-
-
-### Putting the controllers to use
-
-It is recommended to install a simple `rqt` widget called [`rqt_joint_trajectory_controller`][ros-rqt-joint-trajectory-controller].
-
-```bash
-sudo apt install ros-$ROS_DISTRO-rqt-joint-trajectory-controller
+```sh
+export ROS_DOMAIN_ID=5
 ```
 
-Launch using the following command
+Now anyone not using the ROS DOMAIN of 5 won't be able to send or recieve message on my ROS stack.
 
-```bash
-rqt -s rqt_jzoint_trajectory_controller
+
+The following section is specific to Ubuntu as most ROS systems run on Ubuntu. The following can make your applications more user friendly.
+
+When you open a terminal or an executable that uses bash the .bashrc script, which lives in your home directory, runs adding functionality to your terminal. There are many things you might want to add to this to make your life easier. First you might want to add sourcing ROS to your terminal, add the following line to your .bashrc
+
+```sh
+source /opt/ros/humble/setup.bash
 ```
 
-![traj_controller](./resources/images/traj_controller.png)
+Next you might get sick of writing heaps of lines to start up your application. We can create an alias or shortcut to run your application. Add the following lines to your .bashrc.
 
-This widget allows one to set individual joint values on the fly, and the commands are all turned into joint trajectories and sent to the controllers.
-Run `rqt_graph` after hitting the red power button (it will turn green if successful) to see how this widget operates in the ROS stack.
-Also, echo the commands Gazebo is receiving from this widget.
+```sh
+alias qRun='source /opt/ros/humble/setup.bash;source /home/quirky/Documents/dev_ws/install/setup.bash;ros2 launch <your_package> sdf.launch.py'
+```
 
-## Part 2: Doing your own thing
+Since the .bashrc only runs when you open a terminal you either need to start a new terminal or source the .bashrc file before your can use your new alias. Once you have sourced the .bashrc try runnning it using `qRun` in your terminal.
 
-For now we have covered all the basics of ROS2 and you should have the skills to get started working on your own projects. From here feel free to go back and work on anything you weren't able to finish before or come up with your own driving scenario. Start by using the simulation environment and then if the pioneers are available feel free to trial your scenario.
+We can also set up environment variables from the .bashrc, for more details on this please look at the documentation online.
+
+Another useful tool is tmux. This application allows users to run multiple terminals side by side which is great if you want to view multiple running terminals at once which often happens in ROS. Another benefit of tmux is that it runs in the background, this means that if you are disconnected from a remote terminal or need to close a terminal for some reason your running script will continue in the background, look at the [tmux](https://github.com/tmux/tmux/wiki/Getting-Started) documentation and try running the basic [talker and listener nodes](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html). After that close the tmux window with the cross in the top right and then connect to the tmux session again. You should see that the talker and listener continued to run in the background.
+
+In some cases it might be convenient to run your system with a desktop icon. To do this first we create a new text file in the desktop directory with the .desktop file extension. Now open the file up and edit the content with the following.
+
+```sh
+[Desktop Entry]
+Type=Application
+Terminal=true
+Name=ROS_Node
+Icon=/home/quirky/Downloads/ros-logo.jpg
+Exec=bash -c "source /opt/ros/humble/setup.bash;source /home/quirky/Documents/dev_ws/install/setup.bash;ros2 launch p3at sdf.launch.py"
+Categories=Application
+```
+The first line specifies we want to make a desktop shortcut to run something. Terminal set to true means the terminal will open when the application is run. Name and Icon are aesthetics for users. Exec is what runs when the Icon is clicked. In this case we open a new bash terminal and source our ros and local directories, and then run the ros application.
+
+Sometimes it is better to have a ROS system start up without needing to push anything, to do this we use systemd (daemons) to run code on start up. Let's first create a script to run our ros launch file. Create a new file called rosRun.sh and add the following lines to it.
+
+```sh
+#!/bin/bash
+
+source /opt/ros/humble/setup.bash
+source /home/quirky/Documents/dev_ws/install/setup.bash
+ros2 launch demo_nodes_cpp talker_listener.launch.py
+```
+
+then we need to make it an executable file.
+
+```sh
+chmod a+x rosRun.sh
+```
+
+Try running your code now using `./rosRun.sh`. If it runs successfully then you can now add the script to the system startup.
+
+Now you need to create a new file in /etc/systemd/system/ with the extension .service. After that edit the file and add the following lines.
+
+```sh
+[Unit]
+Description=My Script
+After=network.target
+[Service]
+ExecStart=/path/to/script
+[Install]
+WantedBy=default.target
+```
+
+next we need to install the script into the list of available service and enable the service. The first command will reload the list of available services running.
+
+```sh
+sudo systemctl daemon-reload
+sudo systemctl enable <Name_of_your_service>.service
+sudo systemctl start <Name_of_your_service>.service
+```
+
+
+## Part 2: Lifecycles
+
+In more advance systems a nodes lifecycle can be managed to activate and deactivate the node. This is useful if you are changing between control stratergies or if a driver fails and needs to be restarted without breaking down the entire software stack. We will look at how to do this with our simple example from yesterday. A lifecycle node (a variation of the original node) acts like a state machine with set states that it can transition to, the transitions will create or destroy resources related to the node.
+
+
+## Part 3: Control
+
+ROS introduces quite a bit of overhead that can reduce the timing of critical features. While this is not always a problem there are certain systems that require real time operations. In order to achieve this ros2 introduces another concept called ros2_control. While it can be confusing this setup does allow for real time operations and is reserved for select special features of the robot. We will update our pioneer urdf to incoporate ros2_control now.
+
+To start off we need to describe the controller in the robot urdf by adding a new joint for the left and right as well as a hardware plugin as follows
+
+```sh
+<ros2_control name="GazeboSystem" type="system">
+  <hardware>
+    <plugin>gz_ros2_control/GazeboSystem</plugin>
+  </hardware>
+
+  <joint name="left_wheel_joint">
+    <command_interface name="velocity"/>
+    <state_interface name="position"/>
+    <state_interface name="velocity"/>
+  </joint>
+
+  <joint name="right_wheel_joint">
+    <command_interface name="velocity"/>
+    <state_interface name="position"/>
+    <state_interface name="velocity"/>
+  </joint>
+</ros2_control>
+```
+
+next we need to add in a description of how the the simulation and ros need to interact, inside the urdf add the following:
+
+```sh
+<gazebo>
+  <plugin name="gz_ros2_control" filename="libgz_ros2_control.so">
+    <parameters>$(find pioneer_description)/config/controllers.yaml</parameters>
+  </plugin>
+</gazebo>
+```
+
+then under src/<package_name>/config create a new file called controllers.yaml and add the following details.
+
+```sh
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+diff_drive_controller:
+  ros__parameters:
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+
+    wheel_separation: 0.39
+    wheel_radius: 0.095
+
+    base_frame_id: base_link
+    odom_frame_id: odom
+    publish_tf: true
+    use_stamped_vel: false
+```
+
+Now when you go to run your system you will need to start the new controllers.
+
+```sh
+ros2 control load_controller --set-state active joint_state_broadcaster
+ros2 control load_controller --set-state active diff_drive_controller
+```
+
+you can double check the state of the controllers by running:
+
+```sh
+ros2 control list_controllers
+```
+
+If the above controllers do not say ACTIVE then something has gone wrong.
+
+Double check the transforms are publishing correctly by viewing the frames, and try driving the robot using the teleop.

@@ -1,4 +1,4 @@
-# Day 2: Mobile Robots
+# Day 2: Simulation
 
 The focus of today is getting familiar with the simulation and visualisation tools in ROS2 as well as learning how best to run your project as it gets bigger. In the second half of the day we will deploy our simulated solutions to the actual robots (There are only a handful of robots so people will need to take turns and maybe work in pairs).
 
@@ -154,11 +154,11 @@ This tells gazebo that the frame_if needs to be laser_frame, the relative positi
 Once you have added this in and saved it try running the system again (you might need to close your previous gazebo session). Currently you won't be able to see the lidar but Gazebo like ROS has the ability to view topics by using:
 
 ```sh
-ign topic -l
+gz topic -l
 ```
 
 ```sh
-ign topic -e --topic /lidar
+gz topic -e --topic /lidar
 ```
 
 You should see a large array of numbers with the distance values to the wall. We can also visualise the lidar in gazebo as well. Try adding the lidar visualisation by going to the top right menu and searching for `visualise lidar`. After selecting it you might need to refresh the topic in the menu and then you should see a visualisation of the lidar in gazebo.
@@ -323,6 +323,18 @@ IMU
 You now have a working simulation model ready to be used. However, the simulation can only do so much, if we want to apply our own code and drive autonomously we need to connect our simulation to ROS2. Have another read through the urdf and make sure you understand the different parts of the urdf. Try driving it around the map using the Teleop function from before, remember you can use your keyboard by selecting `keyboard` under the `Teleop` section.
 
 
+### Running everything from SDF file
+
+#todo add include for pioneer
+
+```sh
+<include>
+      <uri>file://<path to robot file>/robots/pioneer_complete.urdf</uri>
+      <name>pioneer</name>
+    </include>
+```
+
+
 ### Running in RVIZ
 
 We will now make a new launch file from where the system can be run. Create a new ROS2 workspace on your PC (mkdir for workspace and underneath that folder a second folder called src directory) following the same layout as below (standard ROS folder layout).
@@ -351,12 +363,12 @@ We will now make a new launch file from where the system can be run. Create a ne
 Use the following command to build your package, dependencies are optional and not required for this exercise so remove it from your command, remember the <> are an optional name.
 
 ```sh
-ros2 pkg create -build-type ament_cmake <package_name> <dependencies>
+ros2 pkg create --build-type ament_cmake <package_name> <dependencies>
 ```
 
 After creating your new package you will then need to add some resources from the resource file. First create 5 new folders "launch", "config", "robots", "worlds" and "meshes" and then copy the relevant files from the Resources directory to your new package. You will need to update the file paths again for your new folder arrangement (depending on how you set up your build system you would normally set the file path to the built location but for our purposes just putting it in the src directory is fine)
 
-When a c++ package is building it will look at the CMakeList.txt file to determine how to build everything. At this stage we just want all our files to be added to the install directory so add the following lines to the CMakeList.txt (note for python packages the build setup is different but we won't discuss them at the moment).
+When a c++ package is building it will look at the CMakeList.txt file to determine how to build everything. At this stage we just want all our files to be added to the install directory so add the following lines to the CMakeList.txt (note for python packages the build setup is different but we won't discuss them at the moment). Needs to be done before ament_package().
 
 ```xml
 install(
@@ -378,10 +390,10 @@ You might have noticed that the build has failed and if you read the error you w
 It says that there is a missing package that we need to add called `rqt_robot_steering`. This package comes from the ros repository, typicially these are `ros_XXX` for example `ros_gz_sim`. To fix this issue the first thing we can do it try to install the package.
 
 ```sh
-sudo apt install ros-humble-rqt-robot-steering
+sudo apt install ros-jazzy-rqt-robot-steering
 ```
 
-You can see that our installs for ros packages always start with `ros-humble-` and also note that to find the right package we just add the missing package name and change any _ to -. Try building your system again and see if you get anymore issues, if you do try installing them as per above. At some point you'll come across a package that won't install.
+You can see that our installs for ros packages always start with `ros-jazzy-` and also note that to find the right package we just add the missing package name and change any _ to -. Try building your system again and see if you get anymore issues, if you do try installing them as per above. At some point you'll come across a package that won't install.
 
 ![build_error1](../Resources/images/missingPackage1.png)
 
