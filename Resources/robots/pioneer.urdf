@@ -180,16 +180,18 @@
 
   <gazebo>
     <plugin
-      filename="libignition-gazebo-diff-drive-system.so"
-      name="ignition::gazebo::systems::DiffDrive">
+      filename="gz-sim-diff-drive-system"
+      name="gz::sim::systems::DiffDrive">
       <left_joint>p3at_front_left_wheel_joint</left_joint>
       <left_joint>p3at_back_left_wheel_joint</left_joint>
       <right_joint>p3at_back_right_wheel_joint</right_joint>
       <right_joint>p3at_front_right_wheel_joint</right_joint>
-      <wheel_separation>0.15</wheel_separation>
-      <wheel_radius>0.1</wheel_radius>
-      <odom_publish_frequency>1</odom_publish_frequency>
+      <wheel_separation>0.268</wheel_separation>
+      <wheel_radius>0.111</wheel_radius>
+      <odom_publish_frequency>20</odom_publish_frequency>
       <topic>cmd_vel</topic>
+      <frame_id>odom</frame_id>
+      <odom_topic>odom</odom_topic>
     </plugin>
   </gazebo>
 

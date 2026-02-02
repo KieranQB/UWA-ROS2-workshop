@@ -312,3 +312,47 @@ plot_sample_predictions(X_test, y_test, CNN_y_pred, match=False)
 
 
 Now that we have our model we can try using it within ROS. Have a look at the documentation for using a [tensorflow model](). You will create 3 nodes in seperate python files, one will send images to a topic, one will read those images from the topic and run it through the nn and then publish the estimeat to another topic which will be read by the final node and published to the screen.
+
+## Simulating a UR5e arm
+
+Now we are going to set up a simulation of the UR5e arms. If you are working in a dev container we will need to build a new docker image to work from using the following Dockerfile:
+
+If you are working on your own ubuntu system then you might want to just install and run this directly without docker.
+
+- Following the instructions here to install ROS2 Jazzy on your ubuntu system [ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
+- Once installed install the UR5e package for jazzy following the getting started section in [this](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver) github repo
+  - installed using `sudo apt install ros-jazzy-ur`
+  - you might need to install docker
+    ```
+    sudo apt install ca-certificates curl gnupg lsb-release
+    sudo mkdir -m 0755 -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo ln -sf /usr/share/keyrings/docker-archive-keyring.gpg /etc/apt/keyrings/docker.gpg
+    sudo apt update
+    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    ```
+
+- try running the simuation system using `ros2 run ur_client_library start_ursim.sh -m ur5e`
+- Try and get the simulated robot running and move it to the home position using the web portal
+- setup the UR5e moveit package and run it
+- If you try to run the system now what is the error that comes up?
+- Try to activate the missing controller and ensure the ur5e is in the home position.
+- Now send trajectory commands using the moveit interaface and confirm that the simulated robot is moving.
+
+
+That is it for today, the skills you learn here will help with the rest of the week in diagnosing various issues and so on.
+
+### Moving onto the real robot
+
+Now we are going to move our code to the real pioneers. Make a copy of your current project and move it to the pioneer, once done try and launch your robot again. What do you notice?
+
+The robot is still using the simulated hardware, this is because iwe haven't told the system to use drivers to talk to the real devices. We will download the following packages to setup our robot correctly.
+
+* joy for controller
+* joy teleop for going between controller and velocity commands
+* sick_scan_xd for the lidar
+* phidget_spatial for the IMU
+* luxonis depth ai for the camera
+
+You will need to create your own launch file now similar to the one created for the simulation environment. Try seeing if you can get the system running creating your own launch file (remember to take a bitesize approach to testing that things work).
