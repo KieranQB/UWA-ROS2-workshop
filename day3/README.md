@@ -84,7 +84,7 @@ You should see gazebo and rviz start up. Again you can check that your gazebo mo
     package='ros_gz_bridge',
     executable='parameter_bridge',
     arguments=[
-      '/lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan'
+      '/lidar@sensor_msgs/msg/LaserScan@gzition.msgs.LaserScan'
     ,],
     output='screen',
   )
@@ -100,68 +100,68 @@ The following message types can be bridged for topics (taken from the [gazebo br
 
 | ROS type                                       | Gazebo Transport Type               |
 | ---------------------------------------------- | :------------------------------:    |
-| actuator_msgs/msg/Actuators                    | ign.msgs.Actuators                   |
-| builtin_interfaces/msg/Time                    | ign.msgs.Time                        |
-| geometry_msgs/msg/Point                        | ign.msgs.Vector3d                    |
-| geometry_msgs/msg/Pose                         | ign.msgs.Pose                        |
-| geometry_msgs/msg/PoseArray                    | ign.msgs.Pose_V                      |
-| geometry_msgs/msg/PoseStamped                  | ign.msgs.Pose                        |
-| geometry_msgs/msg/PoseWithCovariance           | ign.msgs.PoseWithCovariance          |
-| geometry_msgs/msg/PoseWithCovarianceStamped    | ign.msgs.PoseWithCovariance          |
-| geometry_msgs/msg/Quaternion                   | ign.msgs.Quaternion                  |
-| geometry_msgs/msg/Transform                    | ign.msgs.Pose                        |
-| geometry_msgs/msg/TransformStamped             | ign.msgs.Pose                        |
-| geometry_msgs/msg/Twist                        | ign.msgs.Twist                       |
-| geometry_msgs/msg/TwistStamped                 | ign.msgs.Twist                       |
-| geometry_msgs/msg/TwistWithCovariance          | ign.msgs.TwistWithCovariance         |
-| geometry_msgs/msg/TwistWithCovarianceStamped   | ign.msgs.TwistWithCovariance         |
-| geometry_msgs/msg/Vector3                      | ign.msgs.Vector3d                    |
-| geometry_msgs/msg/Wrench                       | ign.msgs.Wrench                      |
-| geometry_msgs/msg/WrenchStamped                | ign.msgs.Wrench                      |
-| gps_msgs/msg/GPSFix                            | ign.msgs.NavSat                      |
-| nav_msgs/msg/Odometry                          | ign.msgs.Odometry                    |
-| nav_msgs/msg/Odometry                          | ign.msgs.OdometryWithCovariance      |
-| rcl_interfaces/msg/ParameterValue              | ign.msgs.Any                         |
-| ros_gz_interfaces/msg/Altimeter                | ign.msgs.Altimeter                   |
-| ros_gz_interfaces/msg/Contact                  | ign.msgs.Contact                     |
-| ros_gz_interfaces/msg/Contacts                 | ign.msgs.Contacts                    |
-| ros_gz_interfaces/msg/Dataframe                | ign.msgs.Dataframe                   |
-| ros_gz_interfaces/msg/Entity                   | ign.msgs.Entity                      |
-| ros_gz_interfaces/msg/Float32Array             | ign.msgs.Float_V                     |
-| ros_gz_interfaces/msg/GuiCamera                | ign.msgs.GUICamera                   |
-| ros_gz_interfaces/msg/JointWrench              | ign.msgs.JointWrench                 |
-| ros_gz_interfaces/msg/Light                    | ign.msgs.Light                       |
-| ros_gz_interfaces/msg/ParamVec                 | ign.msgs.Param                       |
-| ros_gz_interfaces/msg/ParamVec                 | ign.msgs.Param_V                     |
-| ros_gz_interfaces/msg/SensorNoise              | ign.msgs.SensorNoise                 |
-| ros_gz_interfaces/msg/StringVec                | ign.msgs.StringMsg_V                 |
-| ros_gz_interfaces/msg/TrackVisual              | ign.msgs.TrackVisual                 |
-| ros_gz_interfaces/msg/VideoRecord              | ign.msgs.VideoRecord                 |
-| rosgraph_msgs/msg/Clock                        | ign.msgs.Clock                       |
-| sensor_msgs/msg/BatteryState                   | ign.msgs.BatteryState                |
-| sensor_msgs/msg/CameraInfo                     | ign.msgs.CameraInfo                  |
-| sensor_msgs/msg/FluidPressure                  | ign.msgs.FluidPressure               |
-| sensor_msgs/msg/Image                          | ign.msgs.Image                       |
-| sensor_msgs/msg/Imu                            | ign.msgs.IMU                         |
-| sensor_msgs/msg/JointState                     | ign.msgs.Model                       |
-| sensor_msgs/msg/Joy                            | ign.msgs.Joy                         |
-| sensor_msgs/msg/LaserScan                      | ign.msgs.LaserScan                   |
-| sensor_msgs/msg/MagneticField                  | ign.msgs.Magnetometer                |
-| sensor_msgs/msg/NavSatFix                      | ign.msgs.NavSat                      |
-| sensor_msgs/msg/PointCloud2                    | ign.msgs.PointCloudPacked            |
-| std_msgs/msg/Bool                              | ign.msgs.Boolean                     |
-| std_msgs/msg/ColorRGBA                         | ign.msgs.Color                       |
-| std_msgs/msg/Empty                             | ign.msgs.Empty                       |
-| std_msgs/msg/Float32                           | ign.msgs.Float                       |
-| std_msgs/msg/Float64                           | ign.msgs.Double                      |
-| std_msgs/msg/Header                            | ign.msgs.Header                      |
-| std_msgs/msg/Int32                             | ign.msgs.Int32                       |
-| std_msgs/msg/String                            | ign.msgs.StringMsg                   |
-| std_msgs/msg/UInt32                            | ign.msgs.UInt32                      |
-| tf2_msgs/msg/TFMessage                         | ign.msgs.Pose_V                      |
-| trajectory_msgs/msg/JointTrajectory            | ign.msgs.JointTrajectory             |
-| vision_msgs/msg/Detection2D                    | ign.msgs.AnnotatedAxisAligned2DBox   |
-| vision_msgs/msg/Detection2DArray               | ign.msgs.AnnotatedAxisAligned2DBox_V |
+| actuator_msgs/msg/Actuators                    | gz.msgs.Actuators                   |
+| builtin_interfaces/msg/Time                    | gz.msgs.Time                        |
+| geometry_msgs/msg/Point                        | gz.msgs.Vector3d                    |
+| geometry_msgs/msg/Pose                         | gz.msgs.Pose                        |
+| geometry_msgs/msg/PoseArray                    | gz.msgs.Pose_V                      |
+| geometry_msgs/msg/PoseStamped                  | gz.msgs.Pose                        |
+| geometry_msgs/msg/PoseWithCovariance           | gz.msgs.PoseWithCovariance          |
+| geometry_msgs/msg/PoseWithCovarianceStamped    | gz.msgs.PoseWithCovariance          |
+| geometry_msgs/msg/Quaternion                   | gz.msgs.Quaternion                  |
+| geometry_msgs/msg/Transform                    | gz.msgs.Pose                        |
+| geometry_msgs/msg/TransformStamped             | gz.msgs.Pose                        |
+| geometry_msgs/msg/Twist                        | gz.msgs.Twist                       |
+| geometry_msgs/msg/TwistStamped                 | gz.msgs.Twist                       |
+| geometry_msgs/msg/TwistWithCovariance          | gz.msgs.TwistWithCovariance         |
+| geometry_msgs/msg/TwistWithCovarianceStamped   | gz.msgs.TwistWithCovariance         |
+| geometry_msgs/msg/Vector3                      | gz.msgs.Vector3d                    |
+| geometry_msgs/msg/Wrench                       | gz.msgs.Wrench                      |
+| geometry_msgs/msg/WrenchStamped                | gz.msgs.Wrench                      |
+| gps_msgs/msg/GPSFix                            | gz.msgs.NavSat                      |
+| nav_msgs/msg/Odometry                          | gz.msgs.Odometry                    |
+| nav_msgs/msg/Odometry                          | gz.msgs.OdometryWithCovariance      |
+| rcl_interfaces/msg/ParameterValue              | gz.msgs.Any                         |
+| ros_gz_interfaces/msg/Altimeter                | gz.msgs.Altimeter                   |
+| ros_gz_interfaces/msg/Contact                  | gz.msgs.Contact                     |
+| ros_gz_interfaces/msg/Contacts                 | gz.msgs.Contacts                    |
+| ros_gz_interfaces/msg/Dataframe                | gz.msgs.Dataframe                   |
+| ros_gz_interfaces/msg/Entity                   | gz.msgs.Entity                      |
+| ros_gz_interfaces/msg/Float32Array             | gz.msgs.Float_V                     |
+| ros_gz_interfaces/msg/GuiCamera                | gz.msgs.GUICamera                   |
+| ros_gz_interfaces/msg/JointWrench              | gz.msgs.JointWrench                 |
+| ros_gz_interfaces/msg/Light                    | gz.msgs.Light                       |
+| ros_gz_interfaces/msg/ParamVec                 | gz.msgs.Param                       |
+| ros_gz_interfaces/msg/ParamVec                 | gz.msgs.Param_V                     |
+| ros_gz_interfaces/msg/SensorNoise              | gz.msgs.SensorNoise                 |
+| ros_gz_interfaces/msg/StringVec                | gz.msgs.StringMsg_V                 |
+| ros_gz_interfaces/msg/TrackVisual              | gz.msgs.TrackVisual                 |
+| ros_gz_interfaces/msg/VideoRecord              | gz.msgs.VideoRecord                 |
+| rosgraph_msgs/msg/Clock                        | gz.msgs.Clock                       |
+| sensor_msgs/msg/BatteryState                   | gz.msgs.BatteryState                |
+| sensor_msgs/msg/CameraInfo                     | gz.msgs.CameraInfo                  |
+| sensor_msgs/msg/FluidPressure                  | gz.msgs.FluidPressure               |
+| sensor_msgs/msg/Image                          | gz.msgs.Image                       |
+| sensor_msgs/msg/Imu                            | gz.msgs.IMU                         |
+| sensor_msgs/msg/JointState                     | gz.msgs.Model                       |
+| sensor_msgs/msg/Joy                            | gz.msgs.Joy                         |
+| sensor_msgs/msg/LaserScan                      | gz.msgs.LaserScan                   |
+| sensor_msgs/msg/MagneticField                  | gz.msgs.Magnetometer                |
+| sensor_msgs/msg/NavSatFix                      | gz.msgs.NavSat                      |
+| sensor_msgs/msg/PointCloud2                    | gz.msgs.PointCloudPacked            |
+| std_msgs/msg/Bool                              | gz.msgs.Boolean                     |
+| std_msgs/msg/ColorRGBA                         | gz.msgs.Color                       |
+| std_msgs/msg/Empty                             | gz.msgs.Empty                       |
+| std_msgs/msg/Float32                           | gz.msgs.Float                       |
+| std_msgs/msg/Float64                           | gz.msgs.Double                      |
+| std_msgs/msg/Header                            | gz.msgs.Header                      |
+| std_msgs/msg/Int32                             | gz.msgs.Int32                       |
+| std_msgs/msg/String                            | gz.msgs.StringMsg                   |
+| std_msgs/msg/UInt32                            | gz.msgs.UInt32                      |
+| tf2_msgs/msg/TFMessage                         | gz.msgs.Pose_V                      |
+| trajectory_msgs/msg/JointTrajectory            | gz.msgs.JointTrajectory             |
+| vision_msgs/msg/Detection2D                    | gz.msgs.AnnotatedAxisAlgzed2DBox   |
+| vision_msgs/msg/Detection2DArray               | gz.msgs.AnnotatedAxisAlgzed2DBox_V |
 | vision_msgs/msg/Detection3D                    | gz::msgs::AnnotatedOriented3DBox    |
 | vision_msgs/msg/Detection3DArray               | gz::msgs::AnnotatedOriented3DBox_V  |
 
@@ -227,13 +227,13 @@ pioneer_base_fp_link_tf = Node(package='tf2_ros',
 bridge = Node(
   package='ros_gz_bridge',
   executable='parameter_bridge',
-  arguments=['/lidar@sensor_msgs/msg/LaserScan@ignition.msgs.LaserScan',
-              '/imu@sensor_msgs/msg/Imu@ignition.msgs.IMU',
-              '/model/pioneer3at_body/odometry@nav_msgs/msg/Odometry@ignition.msgs.Odometry',
-              '/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist',
-              '/camera@sensor_msgs/msg/Image@ignition.msgs.Image',
-              '/model/pioneer3at_body/tf@tf2_msgs/msg/TFMessage@ignition.msgs.Pose_V',
-              '/clock@rosgraph_msgs/msg/Clock@ignition.msgs.Clock',],
+  arguments=['/lidar@sensor_msgs/msg/LaserScan@gzition.msgs.LaserScan',
+              '/imu@sensor_msgs/msg/Imu@gzition.msgs.IMU',
+              '/model/pioneer3at_body/odometry@nav_msgs/msg/Odometry@gzition.msgs.Odometry',
+              '/cmd_vel@geometry_msgs/msg/Twist@gzition.msgs.Twist',
+              '/camera@sensor_msgs/msg/Image@gzition.msgs.Image',
+              '/model/pioneer3at_body/tf@tf2_msgs/msg/TFMessage@gzition.msgs.Pose_V',
+              '/clock@rosgraph_msgs/msg/Clock@gzition.msgs.Clock',],
   output='screen',
   remappings=[('/cmd_vel','/cmd_vel'),
               ('/model/pioneer3at_body/odometry','/odom'),
@@ -245,20 +245,48 @@ bridge = Node(
 </details>
 
 <br>
-Now that the robot model is complete and 
+Now that the robot model is complete and data is coming through we can start working on creating our own nodes and messaging services.
 
 ## Part 2: Creating a node with a publisher subscriber
 
 The basic principles behind ROS2 are nodes, which contain your running code, and messaging services, which provide communication between nodes. The simplest communication method is the publisher/subscriber method. You will create a simple node that reads in the Lidar topic /scan and gets the distance to an obstacle from the central beam. You will then republish this on a new topic called /min_front_dist.
+
+To do:
+- Create a Node
+- Subscribe to the /scan topic
+- Look at the laserscan message and work out how to select the central beam
+- Publish the distance of the central beam to a new topic
+- Add the node to you install file
+- Add it to your launch file.
 
 
 ## Part 3: Create a Service
 
 Now that you have your publisher subscriber running it is time to change it up. Now you will create a new node that takes a request to drive until the obstacle infront of it is X metres from the front of the robot using a Service.
 
+To do:
+- Create a Node
+- Subscribe to the new central beam topic
+- Set up a service that takes in a requested number
+- Send velocity commands while the distance is greater than X
+- Once at the required distance send a response saying complete.
+- Add the node to you install file
+- Add it to your launch file.
+
 ## Part 4: Create and Action
 
 After creating our service we can get the robot to move but we don't know what is happening while we are waiting. We will therefore create another new node that runs an action. As before the request will say how far away the robot needs to be from the wall but while it is driving the robot will give constant feedback on how far it is from the wall.
+
+To do:
+- Create a Node
+- Subscribe to the new central beam topic
+- Set up a service that takes in a requested number
+- Send a response saying started
+- Send velocity commands while the distance is greater than X
+- Provide constant feedback to the user about how far away the wall is
+- Once at the required distance send a response saying complete.
+- Add the node to you install file
+- Add it to your launch file.
 
 ## Part 5: Setting up SLAM for mapping
 
@@ -287,8 +315,10 @@ Try running running your launch file again with SLAM toolbox with your current s
 
 Currently SLAM toolbox is looking for lidar scans on one topic name but the lidar is publishing to a different name. To make this work we need to connect up the LiDAR topics, the naive approach would be to rewrite the nodes so that the topic name from one pacakge lines up with another. The problem with this is that you won't be able to use other peoples packages easily since you don't download the code just the compiled shared library of them. The better approach is to connect the two topics using remapping in the launch file. Go back to your slam toolbox node in your launch file and add the remappings.
 
-For autonomously driving the robot we are going to use the nav2 plugin, this plugin is huge and has many additional features that we aren't going to go into today.In addition, we will need [navigation2]() for path planning and driving. These can be installed using the follow package.
+For autonomously driving the robot we are going to use the nav2 plugin, this plugin is huge and has many additional features. These can be installed using the follow package.
 
 ```sh
 sudo apt install ros-jazzy-navigation2 ros-jazzy-nav2-bringup
 ```
+
+Have a read through the documents and back at john's repo in day 1 to see if you can work out what packages you need to run from your own launch file.
