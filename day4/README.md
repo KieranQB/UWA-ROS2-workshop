@@ -13,7 +13,7 @@ Go back to start creating a robot package where you mapped out the cafe. Start u
 ros2 bag record -o cafeMapping -a
 ```
 
-This will record all available topics (seen when running ros2 topic list). Drive around the cafe mapping out as much of the space as you can. Once finished stop the recording by pressing ctl + c, you should see a new bag file in the directory where you ran the ros bag. The old standard for ROS bag recordings was sqlite3 format, however this has changed to mcap as it gives a better compression. To record an mcap file we use XX.
+This will record all available topics (seen when running ros2 topic list). Drive around the cafe mapping out as much of the space as you can. Once finished stop the recording by pressing ctl + c, you should see a new bag file in the directory where you ran the ros bag. The old standard for ROS bag recordings was sqlite3 format, however this has changed to mcap as it gives a better compression.
 
 You can examine the contents of a ROS bag by running the following command.
 
@@ -27,7 +27,7 @@ Once we have our ROSbag we can then play it back later using
 ros2 bag play cafeMapping
 ```
 
-This will play back the recording messages, and they are available to view with things like ros2 topic echo. Try looking at the messages coming from one of the topics in the ROS bag. This is useful as we can then run mapping functions on the collected data without running the whole system. For example, if our robot has limited processing power but we want it to use a map of the local operating area we might first record the topics relevant to mapping then move to a high performance PC to generate the map and then place the map on the limited power pc. You can also use this approach to build maps of large areas breaking the mapping into multiple sections and remove any bad scans.
+This will play back the recording messages, and they are available to view with things like ros2 topic echo. Try looking at the messages coming from one of the topics in the ROS bag. This is useful as we can then run mapping functions on the collected data without running the whole system. For example, if our robot has limited processing power but we want it to use a map of the local operating area we might first record the topics relevant to mapping then move to a high performance PC to generate the map and then place the map on the limited power pc. You can also use this approach to build maps of large areas breaking the mapping into multiple sections and remove any bad scans. There are other tools like (foxglove studio)[https://foxglove.dev/]
 
 Another thing we can do with ROSbags is capture data on a specific trigger. This is called a snapshot and records the last X amount of seconds before the triggering event, where X is a specified buffer of time.
 
@@ -132,6 +132,140 @@ sudo systemctl start <Name_of_your_service>.service
 ## Part 2: Lifecycles
 
 In more advance systems a nodes lifecycle can be managed to activate and deactivate the node. This is useful if you are changing between control stratergies or if a driver fails and needs to be restarted without breaking down the entire software stack. We will look at how to do this with our simple example from yesterday. A lifecycle node (a variation of the original node) acts like a state machine with set states that it can transition to, the transitions will create or destroy resources related to the node.
+
+For this we will create a new node that inherits from LifecycleNode as oppose to Node. We will initialise it with a publishing rate and speed as we will use it to talk to cmd_vel. At each point in the state machine we will also print out the current state of the node.
+
+```sh
+#!/usr/bin/env python3
+import rclpy
+# from rclpy.node import Node
+from rclpy.lifecycle import LifecycleNode, LifecycleState, TransitionCallbackReturn
+
+from geometry_msgs.msg import Twist
+
+class NumberPublisherNode(LifecycleNode):
+    def __init__(self):
+        super().__init__("publisher_example")
+        self.get_logger().info("Lifecycle Example to control cmd_vel!")
+        self.get_logger().info("IN constructor")
+        self.publish_frequency_ = 1.0
+        self.current_speed_ = 0.0
+
+    def publish_cmd_vel(self):
+        msg = Twist()
+        msg.linear.x = self.current_speed_
+        self.cmd_vel_publisher_.publish(msg)
+```
+
+Now we will add the functions for each transition state. You will need to define an action for each of the state changes:
+
+- on_configure = Create a publisher topic and wall timer
+- on_activate = set the current speed to 0.5 and start sending messages
+- on_deactivate = stop sending messages, set the speed to 0.0 and send once to ensure vehicle is stopped.
+- on_cleanup = destroy the publisher and the timer
+- on_shutdown = same as cleanup
+- on_error = same as cleanup
+
+For each state also run the logger to specify which state it is currently in.
+
+<details>
+<summary>If you are stuggling to get it working open the summary below for the full sensor code.</summary>
+
+<br>
+
+```sh
+#!/usr/bin/env python3
+import rclpy
+# from rclpy.node import Node
+from rclpy.lifecycle import LifecycleNode, LifecycleState, TransitionCallbackReturn
+
+from geometry_msgs.msg import Twist
+
+class NumberPublisherNode(LifecycleNode):
+    def __init__(self):
+        super().__init__("publisher_example")
+        self.get_logger().info("Lifecycle Example to control cmd_vel!")
+        self.get_logger().info("IN constructor")
+        self.publish_frequency_ = 1.0
+        self.current_speed_ = 0.0
+        
+    # Create ROS2 communications, connect to HW    
+    def on_configure(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_configure")
+        self.cmd_vel_publisher_ = self.create_lifecycle_publisher(Twist, "cmd_vel", 10)
+        self.send_timer_ = self.create_timer(
+            1.0 / self.publish_frequency_, self.publish_cmd_vel)
+        return TransitionCallbackReturn.SUCCESS
+
+    # Activate/Enable HW
+    def on_activate(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_activate")
+        self.current_speed_ = 0.5
+        self.send_timer_.reset()
+        return super().on_activate(previous_state)
+    
+    # Deactivate/Disable HW
+    def on_deactivate(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_deactivate")
+        self.send_timer_.cancel()
+        self.current_speed_ = 0.0
+        self.publish_cmd_vel()
+        return super().on_deactivate(previous_state)
+
+    # Destroy ROS2 communications, disconnect from HW
+    def on_cleanup(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_cleanup")
+        self.destroy_lifecycle_publisher(self.cmd_vel_publisher_)
+        self.destroy_timer(self.send_timer_)
+        return TransitionCallbackReturn.SUCCESS
+    
+    # Shutdown the lifecycle node and finalise.
+    def on_shutdown(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_shutdown")
+        self.destroy_lifecycle_publisher(self.cmd_vel_publisher_)
+        self.destroy_timer(self.send_timer_)
+        return TransitionCallbackReturn.SUCCESS
+
+    # Handle errors. Usually not used and instead using try: except
+    def on_error(self, previous_state: LifecycleState):
+        self.get_logger().info("IN on_error")
+        self.destroy_lifecycle_publisher(self.cmd_vel_publisher_)
+        self.destroy_timer(self.send_timer_)
+        # return TransitionCallbackReturn.FAILURE
+        return TransitionCallbackReturn.SUCCESS
+
+    def publish_cmd_vel(self):
+        msg = Twist()
+        msg.linear.x = self.current_speed_
+        self.cmd_vel_publisher_.publish(msg)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = NumberPublisherNode()
+    rclpy.spin(node)
+    rclpy.shutdown()
+
+```
+</details>
+<br>
+
+
+Don't forget to add a main function and start the node.
+
+```sh
+def main(args=None):
+    rclpy.init(args=args)
+    node = NumberPublisherNode()
+    rclpy.spin(node)
+    rclpy.shutdown()
+
+```
+
+No run up your new node and try transitioning between states from command line.
+
+```sh
+ros2 lifecycle set <node_name> <state>
+```
 
 
 ## Part 3: Control
