@@ -368,7 +368,14 @@ ros2 run ros_gz_bridge parameter_bridge \
 
 # TF
 ros2 run tf2_ros static_transform_publisher \
-  0 0 0.1 0 0 0 base_link laser_frame
+  --x 0   \
+  --y 0   \
+  --z 0.1 \
+  --qx 0  \
+  --qy 0  \
+  --qz 0  \
+  --frame-id base_link \
+  --child-frame-id laser_frame
 
 # RViz
 rviz2
