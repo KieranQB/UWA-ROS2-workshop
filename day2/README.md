@@ -364,7 +364,7 @@ gz sim basic_urdf.sdf
 
 # Bridge
 ros2 run ros_gz_bridge parameter_bridge \
-  /scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan
+  /scan@sensor_msgs/msg/LaserScan\[gz.msgs.LaserScan
 
 # TF
 ros2 run tf2_ros static_transform_publisher \
